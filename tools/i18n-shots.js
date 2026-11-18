@@ -1,0 +1,36 @@
+// 英文介面截圖：關卡選單、遊戲畫面、確認列、風機資訊、市場、事件、季報、設定、新手導引
+// 用法：node tools/i18n-shots.js [phone] [en|zh]
+const {chromium,devices}=require('playwright');const path=require('path');const fs=require('fs');
+const phone=process.argv.includes('phone'),lang=process.argv.includes('zh')?'zh':'en';
+const out=path.resolve(__dirname,'out','i18n-'+lang+(phone?'-phone':''));fs.mkdirSync(out,{recursive:true});
+(async()=>{const b=await chromium.launch();
+const p=await b.newPage(phone?{...devices['iPhone 13']}:{viewport:{width:1280,height:800}});
+const errs=[];p.on('pageerror',e=>errs.push(e.message));
+const url='file://'+path.resolve(__dirname,'..','index.html')+'#lang='+lang;
+await p.goto(url);await p.evaluate(()=>{localStorage.setItem('windcity:tutDone','1');window.__noCine=true});
+await p.goto(url);await p.waitForTimeout(1200);
+const shot=async n=>{await p.waitForTimeout(350);await p.screenshot({path:`${out}/${n}.png`})};
+await p.evaluate(()=>{window.__noCine=true;showLevels()});await shot('01-levels');
+await p.evaluate(()=>window.__wft.startLevel('coast',true));await shot('02-brief');
+await p.evaluate(()=>closeModal());
+await p.evaluate(()=>{const g=window.__wft,S=g.S;S.steel=900;S.blades=20;S.crews=6;g.build('sub',11,14);for(const[i,j]of[[8,16],[10,16],[12,16]])g.build('t2',i,j)});
+await p.evaluate(()=>setCat('turb'));await shot('03-tray');
+await p.evaluate(()=>{setTool('t4');const s=window.__wft.screenOf(14,16);return s}).then(async s=>{await p.mouse.click(s[0],s[1])});await shot('04-confirm');
+await p.evaluate(()=>{cancelPreview();setCat('inspect');const o=window.__wft.turbs[0];select({o})});await shot('05-inspect');
+await p.evaluate(()=>{closeInspector();showMarket()});await shot('06-market');
+await p.evaluate(()=>{closeModal();window.__wft.S.flags.ppa=0;window.__wft.endTurn()});await p.waitForTimeout(300);
+if(await p.$('.choice'))await shot('07-event');
+await p.evaluate(()=>document.querySelector('.choice')?.click());await shot('08-report');
+await p.evaluate(()=>{document.querySelector('#rGo')?.click();for(let k=0;k<3;k++){window.__wft.endTurn();document.querySelector('.choice')?.click();document.querySelector('#rGo')?.click()}});await shot('09-hud');
+await p.evaluate(()=>{const S=window.__wft.S;S.sbx=null;S.sbx={force:'typhoon'}});
+await p.evaluate(()=>{window.__wft.S.sbx=null});
+await p.evaluate(()=>showGoals());await shot('10-goals');
+await p.evaluate(()=>{closeModal();showMenu()});await shot('11-menu');
+await p.evaluate(()=>{closeModal();showSettings()});await shot('12-settings');
+await p.evaluate(()=>{closeModal();setCat('land')});await shot('13-land');
+await p.evaluate(()=>{setCat('inspect');setOverlay('wake')});await shot('14-wake');
+await p.evaluate(()=>{setOverlay(null);window.__wft.S.turn=31;window.__wft.endTurn();document.querySelector('.choice')?.click();document.querySelector('#rGo')?.click()});await shot('15-final');
+await p.evaluate(()=>{closeModal();window.__wft.startLevel('tutorial',true)});await p.waitForTimeout(400);await shot('16-tutorial');
+await p.evaluate(()=>{tutStop();window.__wft.startLevel('sandbox',true);closeModal();showSandbox()});await shot('17-sandbox');
+const miss=await p.evaluate(()=>[...I18N_MISS]);
+console.log('missing',miss.length,miss.slice(0,20));console.log('errors',errs);await b.close()})();

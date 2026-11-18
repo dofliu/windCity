@@ -2,3 +2,4 @@ dist/
 node_modules/
 *.mp4
 tools/out/
+__pycache__/

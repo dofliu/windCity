@@ -82,9 +82,9 @@ button:disabled{cursor:not-allowed;opacity:.45}
 .kpi-head .chev{width:16px;height:16px;color:var(--muted);transition:transform .2s}
 #kpi.collapsed .chev{transform:rotate(-90deg)}
 #kpi.collapsed .kpi-body{display:none}
-.kgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:12px}
+.kgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:12px}
 .kgrid div{background:var(--raise);border-radius:10px;padding:7px 8px 6px}
-.kgrid span{display:block;font-size:10px;color:var(--muted);white-space:nowrap}
+.kgrid span{display:block;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kgrid b{font:600 19px/1.1 var(--f-num);font-variant-numeric:tabular-nums}
 .kgrid small{font:500 11px var(--f-num);color:var(--muted);margin-left:2px}
 .kgrid .good b{color:var(--good)} .kgrid .warn b{color:var(--warn)} .kgrid .bad b{color:var(--bad)}
@@ -139,7 +139,7 @@ button:disabled{cursor:not-allowed;opacity:.45}
 .item .sp{font:600 12.5px var(--f-num);color:var(--sky)}
 .item .cs{font:500 12.5px var(--f-num);color:var(--muted);margin-top:2px}
 .item .cs.short{color:#ffb4ab}
-.item .lock{position:absolute;inset:0;border-radius:13px;background:rgba(8,18,24,.62);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:700;color:var(--accent)}
+.item .lock{position:absolute;inset:0;border-radius:13px;background:rgba(8,18,24,.84);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:700;color:var(--accent)}
 .item .lock small{color:var(--muted);font:500 12px var(--f-num)}
 .hint{padding:10px 14px;font-size:12.5px;color:var(--muted);line-height:1.55;max-width:520px}
 .hint b{color:var(--text)}
@@ -364,3 +364,5 @@ button:disabled{cursor:not-allowed;opacity:.45}
 body.cine #top,body.cine #bottom,body.cine #layers,body.cine #zoom,body.cine #kpi,body.cine #insp,body.cine #legend{pointer-events:none;opacity:.35;transition:opacity .3s}
 .set-row.np{grid-template-columns:1fr auto;font-size:13.5px;color:var(--muted)}
 .set-row.np b{color:var(--text)}
+/* 英文介面：手機上的下方工具列字比較長，縮小字級避免黏在一起 */
+@media (max-width:700px){html[lang="en"] .cat{font-size:9px;letter-spacing:-.02em;overflow:hidden;white-space:nowrap}}

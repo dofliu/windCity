@@ -4,7 +4,7 @@ const TUT_KEY='windcity:tutDone';
 const TUT={on:false,i:0,subTile:null,turbTile:null,turn0:0,cam:null,adv:0};
 const tutDone=()=>{try{return localStorage.getItem(TUT_KEY)==='1'}catch(e){return false}};
 function tutMarkDone(){try{localStorage.setItem(TUT_KEY,'1')}catch(e){}PROGRESS.tutorial={stars:3,grade:'S',at:Date.now()};saveProgress()}
-const okSoft=r=>!r||/資金|鋼材|葉片|工班/.test(r);
+const okSoft=r=>!r||/資金|鋼材|葉片|工班|cash|steel|blades|crews/i.test(r);
 // 建議的變電站位置：自有陸地中央、範圍內好風況最多，並把最好的風點留給風機
 function tutPickSub(){
   let best=null,bs=-1e9;
@@ -22,22 +22,22 @@ function tutPickTurb(){
 }
 const confirmOpen=()=>!$('#confirm').hidden&&preview;
 const TUT_STEPS=[
-  {t:'歡迎來到風場大亨',x:'白色虛線圍起來的是你的開發用地。接下來一步一步帶你蓋好第一座變電站與第一部風機，並看著它開始發電。',btn:'開始'},
-  {t:'看看哪裡風最大',x:'點左邊的「風能」圖層。顏色越暖（黃、橘、紅）代表年平均風速越高，通常海岸邊風最大。',el:'.lay[data-ov="wind"]',ok:()=>overlay==='wind'},
-  {t:'風場營運面板',x:'右上角是風場的即時數據：裝置容量、發電量、可用率。最下面的箭頭是本季主風向——冬天吹東北季風。',el:'#kpi',btn:'知道了',enter:()=>{if(kpiCollapsed)$('#kpiHead').click()}},
-  {t:'先蓋變電站',x:'風機發的電要送進電網，必須先有變電站。點下方的「設施」。',el:'.cat[data-cat="fac"]',ok:()=>cat==='fac',enter:()=>{if(W<700&&!kpiCollapsed)$('#kpiHead').click()}},
-  {t:'選擇變電站',x:'點「變電站」。風機要在它 6.5 格範圍內才能併網。',el:'.item[data-k="sub"]',ok:()=>tool==='sub'},
-  {t:'放在這裡',x:'點地圖上閃爍的格子，下方會出現確認列，再按「建造」。',tile:()=>TUT.subTile,el2:'#cOk',ok:()=>facsOf('sub').length>0},
-  {t:'補充鋼材',x:'一部 2 MW 風機需要 60 t 鋼材與 1 組葉片，鋼材不夠了。點右上角的「市場」。',el:'#bMarket',ok:()=>modalOpen&&!!$('#mcard [data-a="bs50"]')},
-  {t:'買 50 噸鋼材',x:'點「買 50 t」。價格每季會浮動，鋼價低的時候可以多囤一點。',el:'#mcard [data-a="bs50"]',ok:()=>S.steel>=60},
-  {t:'回到地圖',x:'材料夠了，點右上角的 ✕ 關閉市場。',el:'#mX',ok:()=>!modalOpen},
-  {t:'選擇風機',x:'點下方的「風機」。',el:'.cat[data-cat="turb"]',ok:()=>cat==='turb'},
-  {t:'選擇 2 MW 機組',x:'點「GW-2.0 陸域型」。小機組一季就能完工。',el:'.item[data-k="t2"]',ok:()=>tool==='t2',enter:()=>{TUT.turbTile=tutPickTurb()}},
-  {t:'蓋在風大的地方',x:'點閃爍的格子：它在變電站範圍內、風速最高。確認列會顯示預估容量因數、尾流損失與年發電量，看完按「建造」。',tile:()=>TUT.turbTile,el2:'#cOk',ok:()=>TURBS.length>0},
-  {t:'推進一季',x:'工班開工了！按「結束本季」，時間往前三個月，風機就會完工。',el:'#next',ok:()=>S.turn>TUT.turn0,enter:()=>{TUT.turn0=S.turn}},
-  {t:'開始發電了！',x:'這是季報：本季發電量、容量因數、可用率與收入都在這裡。看完按下方按鈕繼續。',el:'#rGo',ok:()=>!modalOpen},
-  {t:'看看你的風機',x:'點一下地圖上的風機，畫面會顯示它的輪轂風速、預估容量因數、尾流損失與健康度。',tile:()=>TURBS[0]?[TURBS[0].i,TURBS[0].j]:null,ok:()=>!!(selected&&selected.o&&selected.o.type==='turb'),enter:()=>setCat('inspect')},
-  {t:'完成！',x:'你已經蓋好第一部風機並開始發電。真正的關卡還要考慮尾流排列、工班、備品葉片與颱風。到第 1 關「海岸初探」挑戰八年 120 MW 吧！',final:true},
+  {t:$t`歡迎來到風場大亨`,x:$t`白色虛線圍起來的是你的開發用地。接下來一步一步帶你蓋好第一座變電站與第一部風機，並看著它開始發電。`,btn:$t`開始`},
+  {t:$t`看看哪裡風最大`,x:$t`點左邊的「風能」圖層。顏色越暖（黃、橘、紅）代表年平均風速越高，通常海岸邊風最大。`,el:'.lay[data-ov="wind"]',ok:()=>overlay==='wind'},
+  {t:$t`風場營運面板`,x:$t`右上角是風場的即時數據：裝置容量、發電量、可用率。最下面的箭頭是本季主風向——冬天吹東北季風。`,el:'#kpi',btn:$t`知道了`,enter:()=>{if(kpiCollapsed)$('#kpiHead').click()}},
+  {t:$t`先蓋變電站`,x:$t`風機發的電要送進電網，必須先有變電站。點下方的「設施」。`,el:'.cat[data-cat="fac"]',ok:()=>cat==='fac',enter:()=>{if(W<700&&!kpiCollapsed)$('#kpiHead').click()}},
+  {t:$t`選擇變電站`,x:$t`點「變電站」。風機要在它 6.5 格範圍內才能併網。`,el:'.item[data-k="sub"]',ok:()=>tool==='sub'},
+  {t:$t`放在這裡`,x:$t`點地圖上閃爍的格子，下方會出現確認列，再按「建造」。`,tile:()=>TUT.subTile,el2:'#cOk',ok:()=>facsOf('sub').length>0},
+  {t:$t`補充鋼材`,x:$t`一部 2 MW 風機需要 60 t 鋼材與 1 組葉片，鋼材不夠了。點右上角的「市場」。`,el:'#bMarket',ok:()=>modalOpen&&!!$('#mcard [data-a="bs50"]')},
+  {t:$t`買 50 噸鋼材`,x:$t`點「買 50 t」。價格每季會浮動，鋼價低的時候可以多囤一點。`,el:'#mcard [data-a="bs50"]',ok:()=>S.steel>=60},
+  {t:$t`回到地圖`,x:$t`材料夠了，點右上角的 ✕ 關閉市場。`,el:'#mX',ok:()=>!modalOpen},
+  {t:$t`選擇風機`,x:$t`點下方的「風機」。`,el:'.cat[data-cat="turb"]',ok:()=>cat==='turb'},
+  {t:$t`選擇 2 MW 機組`,x:$t`點「GW-2.0 陸域型」。小機組一季就能完工。`,el:'.item[data-k="t2"]',ok:()=>tool==='t2',enter:()=>{TUT.turbTile=tutPickTurb()}},
+  {t:$t`蓋在風大的地方`,x:$t`點閃爍的格子：它在變電站範圍內、風速最高。確認列會顯示預估容量因數、尾流損失與年發電量，看完按「建造」。`,tile:()=>TUT.turbTile,el2:'#cOk',ok:()=>TURBS.length>0},
+  {t:$t`推進一季`,x:$t`工班開工了！按「結束本季」，時間往前三個月，風機就會完工。`,el:'#next',ok:()=>S.turn>TUT.turn0,enter:()=>{TUT.turn0=S.turn}},
+  {t:$t`開始發電了！`,x:$t`這是季報：本季發電量、容量因數、可用率與收入都在這裡。看完按下方按鈕繼續。`,el:'#rGo',ok:()=>!modalOpen},
+  {t:$t`看看你的風機`,x:$t`點一下地圖上的風機，畫面會顯示它的輪轂風速、預估容量因數、尾流損失與健康度。`,tile:()=>TURBS[0]?[TURBS[0].i,TURBS[0].j]:null,ok:()=>!!(selected&&selected.o&&selected.o.type==='turb'),enter:()=>setCat('inspect')},
+  {t:$t`完成！`,x:$t`你已經蓋好第一部風機並開始發電。真正的關卡還要考慮尾流排列、工班、備品葉片與颱風。到第 1 關「海岸初探」挑戰八年 120 MW 吧！`,final:true},
 ];
 function tutStart(){TUT.on=true;TUT.i=0;TUT.subTile=tutPickSub();TUT.turbTile=null;closeModal();tutShow()}
 function tutStop(){TUT.on=false;for(const id of['#coach','#spot','#tapHint'])$(id).hidden=true}
@@ -45,13 +45,13 @@ function tutShow(){
   const st=TUT_STEPS[TUT.i],n=TUT_STEPS.length;
   if(st.enter)st.enter();
   const el=$('#coach');
-  el.innerHTML=`<div class="coach-in"><div class="coach-ic">${ic(st.final?'i-star':'i-turbine')}</div><div class="coach-tx"><div class="coach-step">新手導引 ${TUT.i+1} / ${n}</div><b>${st.t}</b><p>${st.x}</p></div></div>
+  el.innerHTML=`<div class="coach-in"><div class="coach-ic">${ic(st.final?'i-star':'i-turbine')}</div><div class="coach-tx"><div class="coach-step">${$t`新手導引 ${TUT.i+1} / ${n}`}</div><b>${st.t}</b><p>${st.x}</p></div></div>
     <div class="coach-dots">${TUT_STEPS.map((_,k)=>`<i class="${k<TUT.i?'done':k===TUT.i?'now':''}"></i>`).join('')}</div>
-    <div class="coach-ft">${st.final?`<button class="btn sm" id="tutFree">留在這裡練習</button><button class="btn sm" id="tutLv">關卡選單</button><button class="btn sm pri" id="tutL1">前往第 1 關</button>`
-      :`<button class="btn sm" id="tutSkip">跳過導引</button>${st.btn?`<button class="btn sm pri" id="tutNext">${st.btn}</button>`:'<span class="coach-wait">完成上面的動作後自動繼續</span>'}`}</div>`;
+    <div class="coach-ft">${st.final?`<button class="btn sm" id="tutFree">${$t`留在這裡練習`}</button><button class="btn sm" id="tutLv">${$t`關卡選單`}</button><button class="btn sm pri" id="tutL1">${$t`前往第 1 關`}</button>`
+      :`<button class="btn sm" id="tutSkip">${$t`跳過導引`}</button>${st.btn?`<button class="btn sm pri" id="tutNext">${st.btn}</button>`:`<span class="coach-wait">${$t`完成上面的動作後自動繼續`}</span>`}`}</div>`;
   el.hidden=false;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');
   const nx=$('#tutNext');if(nx)nx.onclick=tutNext;
-  const sk=$('#tutSkip');if(sk)sk.onclick=()=>{tutMarkDone();tutStop();toast('已跳過導引，隨時可以從選單重新播放')};
+  const sk=$('#tutSkip');if(sk)sk.onclick=()=>{tutMarkDone();tutStop();toast($t`已跳過導引，隨時可以從選單重新播放`)};
   if(st.final){tutMarkDone();sfx('win');
     $('#tutFree').onclick=tutStop;$('#tutLv').onclick=()=>{tutStop();showLevels()};$('#tutL1').onclick=()=>{tutStop();startLevel('coast',false)}}
   const tg=st.tile&&st.tile();

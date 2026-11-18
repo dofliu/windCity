@@ -688,7 +688,7 @@ function drawOverlays(c){
   if(preview&&preview.tool==='buy'&&preview.chk.p)parcelOutline(c,preview.chk.p,'rgba(255,205,80,1)',2.4,[7,5]);
   if(overlay==='land'){
     for(const p of S.parcels){const cx=p.px*PS+PS/2,cy=p.py*PS+PS/2,e=elev(tile(Math.floor(cx),Math.floor(cy)))+1.5,s=iso(cx,cy,e);
-      labelChip(c,s[0],s[1],p.owned?`${parcelName(p)} · 已擁有`:`${parcelName(p)} · ${parcelPrice(p)}M`,p.owned?'rgba(255,197,65,.95)':'rgba(12,25,33,.86)',p.owned?'#2f2100':'#fff')}
+      labelChip(c,s[0],s[1],p.owned?$t`${parcelName(p)} · 已擁有`:`${parcelName(p)} · ${parcelPrice(p)}M`,p.owned?'rgba(255,197,65,.95)':'rgba(12,25,33,.86)',p.owned?'#2f2100':'#fff')}
   }
   const SUBS=[...facsOf('sub'),...facsOf('osub')];
   if(overlay==='grid'||tool==='sub'||tool==='osub'){
@@ -782,11 +782,11 @@ function badge(c,x,y,col,txt,ring){
 function drawBadges(c){
   for(const o of TURBS){
     const m=MODELS[o.model],p=iso(o.i+.5,o.j+.5,elev(tile(o.i,o.j))),y=p[1]-m.hub-m.rr-8+Math.sin(time*3+o.id)*1.5;
-    if(o.state==='build')badge(c,p[0],y+m.rr-6,'#e5a019','工',(o.prog+.5)/m.build);
-    else if(o.state==='fault')badge(c,p[0],y,o.repairing?'#e88a1a':'#e5483b',o.repairing?'修':'!');
-    else if(!o.conn)badge(c,p[0],y,'#6b7b82','斷');
-    else if(o.over)badge(c,p[0],y,'#c9772b','限');
-    else if(o.pm)badge(c,p[0],y,'#2f9fb3','檢');
+    if(o.state==='build')badge(c,p[0],y+m.rr-6,'#e5a019',$t`工`,(o.prog+.5)/m.build);
+    else if(o.state==='fault')badge(c,p[0],y,o.repairing?'#e88a1a':'#e5483b',o.repairing?$t`修`:'!');
+    else if(!o.conn)badge(c,p[0],y,'#6b7b82',$t`斷`);
+    else if(o.over)badge(c,p[0],y,'#c9772b',$t`限`);
+    else if(o.pm)badge(c,p[0],y,'#2f9fb3',$t`檢`);
   }
 }
 function floatText(x,y,e,txt,col){const p=iso(x,y,e);floats.push({x:p[0],y:p[1]-30,txt,col,t:0,world:true})}

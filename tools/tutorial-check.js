@@ -2,11 +2,11 @@
 // 用法：node tools/tutorial-check.js [phone]
 const {chromium,devices}=require('playwright');const path=require('path');const fs=require('fs');
 const out=path.resolve(__dirname,'out');fs.mkdirSync(out,{recursive:true});
-const phone=process.argv[2]==='phone';
+const phone=process.argv.includes('phone'),hash=process.argv.includes('en')?'#lang=en':'';
 (async()=>{const b=await chromium.launch();
 const ctx=phone?await b.newContext({...devices['iPhone 13']}):await b.newContext({viewport:{width:1280,height:800}});
 const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+path.resolve(__dirname,'..','index.html'));await p.waitForTimeout(1500);
+await p.goto('file://'+path.resolve(__dirname,'..','index.html')+hash);await p.waitForTimeout(1500);
 const log=[];
 for(let guard=0;guard<40;guard++){
   if(await p.evaluate(()=>CINE.on)){await p.waitForFunction(()=>!CINE.on,null,{timeout:10000});await p.waitForTimeout(700)} // 結算動畫播完

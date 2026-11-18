@@ -17,7 +17,7 @@ function crowd(fromTiles,gi,gj,n,signs){
 }
 function cineCaption(ic_,title,sub,tone){
   const el=$('#cine');
-  el.innerHTML=`<div class="evicon tone-${tone||'neutral'}">${ic(ic_)}</div><div class="cine-tx"><b>${title}</b><span>${sub||''}</span></div><button class="btn sm" id="cineSkip" data-silent="1">略過 ›</button>`;
+  el.innerHTML=`<div class="evicon tone-${tone||'neutral'}">${ic(ic_)}</div><div class="cine-tx"><b>${title}</b><span>${sub||''}</span></div><button class="btn sm" id="cineSkip" data-silent="1">${$t`略過 ›`}</button>`;
   el.hidden=false;el.classList.remove('show');void el.offsetWidth;el.classList.add('show');
   $('#qbanner').classList.remove('show');
   $('#cineSkip').onclick=cineEnd;
@@ -31,12 +31,12 @@ function playCine(phase,data,done){
   let dur=2.6;
   if(phase==='pre'){
     const k=ev.id;
-    cineCaption(ev.icon,ev.title,ev.desc||ev.note||'季中事件',ev.tone);
+    cineCaption(ev.icon,ev.title,ev.desc||ev.note||$t`季中事件`,ev.tone);
     if(k==='typhoon'){dur=3.8;const c=iso(N/2,N/2,0);cineCam(c[0],c[1]+40,fitZoom(),900);CINE.ty={x0:iso(N*1.25,N*1.05)[0],y0:iso(N*1.25,N*1.05)[1],x1:ow[0],y1:ow[1]};sfx('typhoon')}
     else if(k==='protest'){dur=4;
       const T=TURBS.filter(o=>houseNear(o.i,o.j,4)).sort((a,b)=>nearHouses(b.i,b.j,4).length-nearHouses(a.i,a.j,4).length);
       const o=T[0]||TURBS[0];const g=o?landNear(o.i,o.j)||tile(o.i,o.j):tile(Math.floor(oc[0]),Math.floor(oc[1]));
-      const hs=o?nearHouses(o.i,o.j,6):[];CINE.tgt=[g.i,g.j];CINE.people=crowd(hs,g.i,g.j,10,['噪音','抗議','還我寧靜']);
+      const hs=o?nearHouses(o.i,o.j,6):[];CINE.tgt=[g.i,g.j];CINE.people=crowd(hs,g.i,g.j,10,[$t`噪音`,$t`抗議`,$t`還我寧靜`]);
       const w=wpt(g.i,g.j);cineCam(w[0],w[1]-20,1.6);sfx('crowd')}
     else if(k==='lightning'){dur=3.2;const o=byId.get(ev.strike)||TURBS[0];if(o){CINE.tgt=[o.i,o.j];const w=wpt(o.i,o.j);cineCam(w[0],w[1]-MODELS[o.model].hub*.6,1.5)}
       CINE.bolts=[{t:1.2,seed:VR()},{t:1.95,seed:VR()},{t:2.5,seed:VR()}]}
@@ -59,9 +59,9 @@ function playCine(phase,data,done){
     else if(all.length){let sx=0,sy=0;for(const o of all){sx+=o.i;sy+=o.j}const w=iso(sx/all.length+.5,sy/all.length+.5,1);cineCam(w[0],w[1]-30,all.length>3?1:1.3,600)}
     if(ki==='typhoon'){CINE.ty={x0:ow[0],y0:ow[1],x1:iso(-N*.4,N*.1)[0],y1:iso(-N*.4,N*.1)[1]}}
     CINE.hits=hits.map((o,n)=>({o,t:.35+n*.22}));CINE.built=built.map((o,n)=>({o,t:.3+n*.2}));
-    const parts=[];if(built.length)parts.push(`${built.length} 部完工`);if(hits.length)parts.push(`${hits.length} 部受損或故障`);
-    if(rep.net)parts.push(`淨利 ${rep.net>=0?'+':'−'}${fmt(Math.abs(rep.net),1)}M`);
-    cineCaption(hits.length?'i-alert':built.length?'i-turbine':'i-coin',`${rep.label} 結算`,parts.join('・')||rep.ev.title,hits.length?'bad':'good');
+    const parts=[];if(built.length)parts.push($t`${built.length} 部完工`);if(hits.length)parts.push($t`${hits.length} 部受損或故障`);
+    if(rep.net)parts.push($t`淨利 ${rep.net>=0?'+':'−'}${fmt(Math.abs(rep.net),1)}M`);
+    cineCaption(hits.length?'i-alert':built.length?'i-turbine':'i-coin',$t`${rep.label} 結算`,parts.join('・')||rep.ev.title,hits.length?'bad':'good');
     if(rep.net>0)for(const s of facsOf('sub').slice(0,3))for(let n=0;n<6;n++)CINE.coins.push({sub:s,d:.2+n*.12+VR()*.1,ph:VR()*6});
   }
   CINE.dur=dur;document.body.classList.add('cine');
@@ -110,8 +110,9 @@ function drawPerson(c,p){
   c.fillStyle='#f2c9a0';c.beginPath();c.arc(0,-8.2-bob,1.55,0,6.283);c.fill();c.stroke();
   c.fillStyle='#2d2d2d';c.beginPath();c.arc(0,-8.9-bob,1.5,Math.PI,0);c.fill();
   if(p.sign){const up=p.walk?0:Math.sin(time*6+p.ph)*1.5;c.strokeStyle='#7a5a3a';c.lineWidth=.6;c.beginPath();c.moveTo(1.8,-5-bob);c.lineTo(2,-15-bob-up);c.stroke();
-    c.fillStyle='#fffdf5';c.fillRect(-2.6,-20.5-bob-up,9.2,5.4);c.strokeStyle=OL;c.lineWidth=.4;c.strokeRect(-2.6,-20.5-bob-up,9.2,5.4);
-    c.fillStyle='#d9483b';c.font='900 3.4px "Noto Sans TC",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(p.sign,2,-17.8-bob-up)}
+    c.font='900 3.4px "Noto Sans TC",sans-serif';const sw=Math.max(9.2,c.measureText(p.sign).width+2.4); /* 牌子寬度跟著字變（英文較長） */
+    c.fillStyle='#fffdf5';c.fillRect(2-sw/2,-20.5-bob-up,sw,5.4);c.strokeStyle=OL;c.lineWidth=.4;c.strokeRect(2-sw/2,-20.5-bob-up,sw,5.4);
+    c.fillStyle='#d9483b';c.textAlign='center';c.textBaseline='middle';c.fillText(p.sign,2,-17.8-bob-up)}
   c.restore();
 }
 function drawTyphoon(c,x,y,a){
@@ -139,25 +140,25 @@ function drawCine(c){
   if(!CINE.on)return;
   if(CINE.ty){const e=CINE.phase==='pre'?1-Math.pow(1-k,2):k*k,x=lerp(CINE.ty.x0,CINE.ty.x1,e),y=lerp(CINE.ty.y0,CINE.ty.y1,e);drawTyphoon(c,x,y,CINE.phase==='pre'?Math.min(1,k*3):1-k)}
   if((kind==='protest'||kind==='town'||(CINE.phase==='post'&&CINE.people.length))&&CINE.tgt){
-    const w=wpt(CINE.tgt[0],CINE.tgt[1]),lines=kind==='town'?['說明會','回饋計畫'] :['太吵了！','晚上睡不著','風機離我們太近'];
+    const w=wpt(CINE.tgt[0],CINE.tgt[1]),lines=kind==='town'?[$t`說明會`,$t`回饋計畫`] :[$t`太吵了！`,$t`晚上睡不著`,$t`風機離我們太近`];
     if(CINE.phase==='pre'&&t>1.6){const n=Math.floor((t-1.6)/.8)%lines.length;cineText(c,w[0]+Math.sin(t)*6,w[1]-46,lines[n],15,kind==='town'?'#2f6f8f':'#c0392b','rgba(255,255,255,.95)')}
     if(CINE.phase==='post'){const happy=CINE.mood==='happy';for(let n=0;n<6;n++){const a=(t*1.4+n/6)%1;cineText(c,w[0]+(n-2.5)*9,w[1]-20-a*40,happy?'♥':'！',14,happy?`rgba(232,72,120,${1-a})`:`rgba(217,72,59,${1-a})`,null)}}
   }
   if(kind==='lightning'&&CINE.tgt){const o=byId.get(ev.strike)||TURBS[0],w=wpt(CINE.tgt[0],CINE.tgt[1]),h=o?MODELS[o.model].hub:70,cy=w[1]-h-70;
     for(const[dx,dy,r]of[[-26,4,20],[0,-6,26],[26,2,20],[-10,10,18],[14,12,18]]){c.fillStyle=`rgba(60,66,80,${Math.min(.92,k*2)})`;c.beginPath();c.ellipse(w[0]+dx,cy+dy,r,r*.6,0,0,6.283);c.fill()}
     for(const b of CINE.bolts)if(b.hit&&t-b.t<.22)bolt(c,w[0]+(b.seed-.5)*30,cy+10,w[0]+4,w[1]-h-6,b.seed)}
-  if(kind==='curtail'){for(const s of facsOf('sub')){const w=wpt(s.i,s.j),pulse=.5+.5*Math.sin(t*8);c.strokeStyle=`rgba(255,80,60,${.4+.5*pulse})`;c.lineWidth=3/cam.z;c.beginPath();c.ellipse(w[0],w[1],30+pulse*8,15+pulse*4,0,0,6.283);c.stroke();cineText(c,w[0],w[1]-44,'⚡ 限電',22,'#fff','rgba(217,72,59,.95)')}
+  if(kind==='curtail'){for(const s of facsOf('sub')){const w=wpt(s.i,s.j),pulse=.5+.5*Math.sin(t*8);c.strokeStyle=`rgba(255,80,60,${.4+.5*pulse})`;c.lineWidth=3/cam.z;c.beginPath();c.ellipse(w[0],w[1],30+pulse*8,15+pulse*4,0,0,6.283);c.stroke();cineText(c,w[0],w[1]-44,$t`⚡ 限電`,22,'#fff','rgba(217,72,59,.95)')}
     c.strokeStyle=`rgba(255,80,60,${.5+.4*Math.sin(t*10)})`;c.lineWidth=3/cam.z;c.setLineDash([8/cam.z,6/cam.z]);c.lineDashOffset=-t*30;
     for(const o of TURBS){const s=GRID.asg.get(o);if(!s)continue;const a=wpt(o.i,o.j),b=wpt(s.i,s.j);c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke()}c.setLineDash([])}
   if(kind==='monsoon'){const f=flowNow(),fs=sv(f[0],f[1]),l=Math.hypot(fs[0],fs[1]);c.lineCap='round';
     for(const g of CINE.gusts){const p=iso(g.x,g.y,0);p[1]-=g.z;const a=Math.min(1,k*4)*(1-k)*.9;c.strokeStyle=`rgba(255,255,255,${a})`;c.lineWidth=2.2;c.beginPath();c.moveTo(p[0],p[1]);c.lineTo(p[0]-fs[0]/l*60*g.l,p[1]-fs[1]/l*60*g.l);c.stroke()}}
   if(kind==='subsidy'){for(const q of CINE.coins){const tt=Math.max(0,t-q.d);let z=q.z-tt*tt*260;if(z<0){z=Math.abs(Math.sin(tt*6))*8*Math.max(0,1-(tt-1));}
       const p=iso(q.x,q.y,1);p[1]-=z;const sp=Math.abs(Math.cos(time*6+q.x));const R=7.5;c.fillStyle='#f2c230';c.beginPath();c.ellipse(p[0],p[1],R*sp+.8,R,0,0,6.283);c.fill();c.strokeStyle='#8a6208';c.lineWidth=1.3;c.stroke();if(sp>.5){c.fillStyle='#fff3b0';c.beginPath();c.ellipse(p[0]-R*sp*.3,p[1]-R*.3,R*sp*.25,R*.25,0,0,6.283);c.fill()}}
-    const oc=ownedCenter(),w=iso(oc[0],oc[1],1);if(t>1)cineText(c,w[0],w[1]-60-(t-1)*10,ev.note||'售電費率 +0.4 元/度',20,'#2f2100','rgba(255,214,90,.95)')}
+    const oc=ownedCenter(),w=iso(oc[0],oc[1],1);if(t>1)cineText(c,w[0],w[1]-60-(t-1)*10,ev.note||$t`售電費率 +0.4 元/度`,20,'#2f2100','rgba(255,214,90,.95)')}
   if(kind==='birds'&&CINE.fl){const e=k,cx=CINE.fl.x0+CINE.fl.dx*e,cy=CINE.fl.y0+CINE.fl.dy*e;
     for(const b of CINE.flock){const p=iso(cx+b.ox,cy+b.oy,0);const yy=p[1]-90,flap=Math.sin(time*9+b.ph)*6;c.fillStyle='rgba(16,44,40,.14)';c.beginPath();c.ellipse(p[0]+30,p[1]+15,6,2.2,0,0,6.283);c.fill();
       c.strokeStyle='#26343a';c.lineWidth=2.6;c.lineCap='round';c.lineJoin='round';c.beginPath();c.moveTo(p[0]-11,yy-flap);c.quadraticCurveTo(p[0]-4,yy-2,p[0],yy+1);c.quadraticCurveTo(p[0]+4,yy-2,p[0]+11,yy-flap);c.stroke();c.fillStyle='#fff';c.beginPath();c.arc(p[0],yy+1,1.6,0,6.283);c.fill()}}
-  if(kind==='crane'&&CINE.tgt){const o=byId.get(TURBS.find(x=>x.state==='build')?.id),w=wpt(CINE.tgt[0],CINE.tgt[1]);if(Math.sin(t*7)>-.2)cineText(c,w[0]+16,w[1]-(o?MODELS[o.model].hub:70)*.6-20,'⏳ 延誤一季',18,'#fff','rgba(240,138,36,.95)')}
+  if(kind==='crane'&&CINE.tgt){const o=byId.get(TURBS.find(x=>x.state==='build')?.id),w=wpt(CINE.tgt[0],CINE.tgt[1]);if(Math.sin(t*7)>-.2)cineText(c,w[0]+16,w[1]-(o?MODELS[o.model].hub:70)*.6-20,$t`⏳ 延誤一季`,18,'#fff','rgba(240,138,36,.95)')}
   if(kind==='techcoop'&&CINE.tgt){const w=wpt(CINE.tgt[0],CINE.tgt[1]),y=w[1]-70-Math.sin(t*3)*4,s=1.8/cam.z;c.save();c.translate(w[0],y);c.scale(s,s);
     c.save();c.globalCompositeOperation='lighter';c.strokeStyle='rgba(255,220,90,.7)';c.lineWidth=3;for(let n=0;n<10;n++){const a=n/10*6.283+t;c.beginPath();c.moveTo(Math.cos(a)*24,Math.sin(a)*24);c.lineTo(Math.cos(a)*34,Math.sin(a)*34);c.stroke()}c.restore();
     c.fillStyle='#ffe066';c.beginPath();c.arc(0,-4,15,0,6.283);c.fill();c.strokeStyle=OL;c.lineWidth=2.4;c.stroke();c.fillStyle='#c9d0d2';c.fillRect(-7,10,14,9);c.strokeRect(-7,10,14,9);c.restore()}
@@ -172,7 +173,7 @@ function drawCineScreen(c){
     c.fillStyle=`rgba(255,140,50,${.12*fade})`;c.fillRect(0,0,W,H);
     c.strokeStyle=`rgba(255,255,255,${.12*fade})`;c.lineWidth=2;for(let n=0;n<14;n++){const y=(n/14*H+CINE.t*40)%H;c.beginPath();for(let x=0;x<=W;x+=20){const yy=y+Math.sin(x*.02+CINE.t*4+n)*4;x?c.lineTo(x,yy):c.moveTo(x,yy)}c.stroke()}}
   if(kind==='steelUp'||kind==='steelDown'||kind==='bladeShort'){
-    const up=kind!=='steelDown',lbl=kind==='bladeShort'?'葉片報價':'鋼材報價',pct=((CINE.ev.note||'').match(/[+−-]\s?\d+%/)||[''])[0],col=up?'#d9483b':'#2f9e5a';
+    const up=kind!=='steelDown',lbl=kind==='bladeShort'?$t`葉片報價`:$t`鋼材報價`,pct=((CINE.ev.note||'').match(/[+−-]\s?\d+%/)||[''])[0],col=up?'#d9483b':'#2f9e5a';
     const pw=Math.min(300,W-40),ph=150,x=W/2,y=H*.5,pop=easeBack(Math.min(1,CINE.t*2.5));
     c.save();c.translate(x,y);c.scale(pop,pop);c.globalAlpha=fade;
     c.fillStyle='rgba(255,255,255,.97)';c.beginPath();c.roundRect(-pw/2,-ph/2,pw,ph,18);c.fill();c.strokeStyle=OL;c.lineWidth=3;c.stroke();
@@ -193,7 +194,7 @@ function drawCineScreen(c){
     c.fillStyle='#e9eef0';c.fillRect(-58,-30,116,56);c.strokeRect(-58,-30,116,56);
     c.fillStyle='#b8c4c8';c.fillRect(22,-74,18,44);c.strokeRect(22,-74,18,44);c.fillStyle='#b8c4c8';c.fillRect(-10,-58,14,28);c.strokeRect(-10,-58,14,28);
     c.fillStyle='#3d6fa8';for(let n=0;n<5;n++){c.fillRect(-48+n*21,-18,14,12);c.strokeRect(-48+n*21,-18,14,12)}
-    c.fillStyle='#2f9e5a';c.beginPath();c.roundRect(-62,34,124,30,10);c.fill();c.stroke();c.fillStyle='#fff';c.font='900 16px "Noto Sans TC",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('綠電契約',0,49);c.restore();c.globalAlpha=1}
+    c.fillStyle='#2f9e5a';c.beginPath();c.roundRect(-62,34,124,30,10);c.fill();c.stroke();c.fillStyle='#fff';c.font='900 16px "Noto Sans TC",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText($t`綠電契約`,0,49);c.restore();c.globalAlpha=1}
   if(kind==='lowwind'){c.fillStyle=`rgba(230,220,180,${.25*fade})`;c.fillRect(0,0,W,H)}
   if(kind==='typhoon'&&CINE.phase==='pre'){const g=c.createRadialGradient(W/2,H/2,H*.2,W/2,H/2,H*.9);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,`rgba(10,20,30,${.45*fade})`);c.fillStyle=g;c.fillRect(0,0,W,H)}
 }

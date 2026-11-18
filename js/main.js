@@ -24,7 +24,7 @@ function enterState(st){
   updateHUD();
 }
 function startLevel(id,fresh){
-  const L=LEVEL_BY_ID[id];if(!L||!levelOpen(L)){toast('這一關尚未開放','bad');return}
+  const L=LEVEL_BY_ID[id];if(!L||!levelOpen(L)){toast($t`這一關尚未開放`,'bad');return}
   hideLevels();closeModal();
   if(fresh||L.tutorial)clearSave(id);
   const sv=fresh||L.tutorial?null:loadSave(id);
@@ -44,7 +44,7 @@ function wire(){
   window.addEventListener('keydown',e=>{if(CINE.on&&(e.key==='Escape'||e.key===' ')){cineEnd();return}if(e.key==='Escape'){if(modalOpen)return;if(preview)cancelPreview();else setCat('inspect')}});
 }
 function start(data){
-  resize();initSprites();wire();loadProgress();adminInit();audioArm();
+  i18nDom();resize();initSprites();wire();loadProgress();adminInit();audioArm();
   if(W<700){kpiCollapsed=true;$('#kpi').classList.add('collapsed')}
   if(data&&data.S&&data.S.ver===2){enterState(data.S);requestAnimationFrame(frame);return}
   let last=null;try{last=localStorage.getItem(LAST_KEY)}catch(e){}
@@ -52,7 +52,9 @@ function start(data){
   if(sv)enterState(sv);
   else{const st=newState('coast');st._backdrop=true;enterState(st)}
   // 第一次來玩：直接進入新手導引
+  let resume='';try{resume=sessionStorage.getItem('windcity:resume')||'';sessionStorage.removeItem('windcity:resume')}catch(e){}
   if(!sv&&!tutDone()&&!Object.keys(PROGRESS).length)startLevel('tutorial',true);
+  else if(sv&&resume&&!sv.over){if(resume==='settings')showSettings()}
   else showLevels();
   requestAnimationFrame(frame);
 }
