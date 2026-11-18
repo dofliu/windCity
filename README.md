@@ -59,6 +59,20 @@ python3 tools/build.py --artifact   # dist/artifact.html
 - **音效**：按鈕、建造、完工、拆除、購買、研發、事件、颱風警報、過關與失敗。
 - **設定**（選單 → 設定，或頂列的聲音按鈕）：音樂、音效、環境音音量、全部靜音、日夜循環、事件動畫開關，存在瀏覽器。瀏覽器規定要先點一下畫面才會開始出聲。
 
+## 語言：中文／English
+
+關卡選單右上角的「English／中文」按鈕，或「選單 → 設定 → 語言 Language」都可以切換；也可以在網址加上 `#lang=en` 直接用英文開啟。切換時會先存檔再重新載入，遊戲中切換會回到同一關。
+
+翻譯方式：中文就是原文。程式裡所有含中文的字串都寫成 `` $t`…` `` 標籤樣板，英文從 `js/i18n-en.js` 的字典查，字典的鍵就是中文原文（樣板裡的 `${…}` 寫成 `{}`，英文可用 `{0}`、`{1}` 調整順序）；查不到的字串會直接顯示中文。`index.html` 寫死的文字在啟動時由 `i18nDom()` 翻譯。
+
+新增或修改中文字串後：
+
+```bash
+python3 tools/i18n.py wrap     # 把新的中文字串包上 $t``
+python3 tools/i18n.py split    # 含 HTML 的樣板改成每段文字各自翻譯
+python3 tools/i18n.py check    # 列出缺少的英文、用不到的條目、佔位符或 HTML 標籤不一致
+```
+
 ## 管理介面：設定開放哪些關卡
 
 每一關可以設為「開放」「過關後開放」（上一關至少一顆星才解鎖）或「關閉」。
@@ -71,6 +85,8 @@ python3 tools/build.py --artifact   # dist/artifact.html
 ```
 index.html          頁面骨架、圖示、HUD
 css/game.css        樣式
+js/i18n.js          多語系：$t`` 翻譯、語言切換、翻譯靜態 HTML
+js/i18n-en.js       英文字典（鍵是中文原文）
 js/config.js        常數、機型、設施、季節
 js/levels.js        關卡定義、地圖生成器、目標與評等
 js/state.js         遊戲狀態、物理模型（功率曲線、尾流）、規則、玩家動作
@@ -99,9 +115,10 @@ node tools/levels-smoke.js 3              # 每一關推進 3 季並截圖到 to
 node tools/ui-check.js                    # 測試工具與管理介面的功能檢查
 node tools/fx-check.js                    # 日夜截圖、音訊是否真的有輸出
 node tools/art-shots.js                   # 美術特寫截圖（村落、四季農田、丘陵、離岸）
-node tools/tutorial-check.js [phone]      # 新手導引端對端測試：模擬新玩家點完 16 個步驟
-node tools/cine-check.js [phone] [事件]    # 事件動畫：逐一強制觸發事件，截下演出畫面到 tools/out/cine/
+node tools/tutorial-check.js [phone] [en] # 新手導引端對端測試：模擬新玩家點完 16 個步驟
+node tools/cine-check.js [phone] [en] [事件] # 事件動畫：逐一強制觸發事件，截下演出畫面到 tools/out/cine/
 node tools/music-preview.js [秒數] [曲目]  # 背景音樂：離線渲染每首曲子成 WAV 到 tools/out/music/，並列出峰值與音量
+node tools/i18n-shots.js [phone] [en|zh]   # 各主要畫面截圖（預設英文），並列出執行時查不到翻譯的字串
 node tools/balance.js all 4 good,naive    # 平衡測試：每關用好策略與草率策略各跑 4 個種子
 ```
 

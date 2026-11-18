@@ -182,7 +182,7 @@ function fxBanner(title,sub){
 }
 function fxAfterReport(rep){
   const se=season();
-  fxBanner(dateLabel(S.turn),`${se.name}季・${se.label}`);
+  fxBanner(dateLabel(S.turn),$t`${se.name}季・${se.label}`);
   let n=0;for(const id of (rep&&rep.builtIds)||[]){const o=byId.get(id);if(!o)continue;const m=MODELS[o.model];setTimeout(()=>fxSparkle(o.i,o.j,elev(tile(o.i,o.j)),m.hub),200+n*180);n++}
   if(n)setTimeout(()=>sfx('complete'),200);
 }

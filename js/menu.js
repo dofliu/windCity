@@ -15,11 +15,11 @@ function recordResult(){
 function levelState(L){
   const st=(ADMIN.cfg.levels||{})[L.id]||(L.no<=1?'open':'seq');
   if(st==='open')return {open:true};
-  if(st==='closed')return {open:false,why:'管理員尚未開放'};
+  if(st==='closed')return {open:false,why:$t`管理員尚未開放`};
   const prev=LEVELS.find(l=>l.no===L.no-1&&!l.sandbox);
   if(!prev)return {open:true};
   const pr=PROGRESS[prev.id];
-  return pr&&pr.stars>0?{open:true}:{open:false,why:`完成「${prev.name}」後開放`};
+  return pr&&pr.stars>0?{open:true}:{open:false,why:$t`完成「${prev.name}」後開放`};
 }
 const levelOpen=L=>levelState(L).open;
 
@@ -56,23 +56,24 @@ function showLevels(){
     const st=levelState(L),pr=PROGRESS[L.id],sv=loadSave(L.id),stars=pr?pr.stars:0;
     const goals=(L.goals||[]).map(g=>`<span>${GOAL_DEF[g.k].name} ${g.t}${GOAL_DEF[g.k].unit==='%'?'%':' '+GOAL_DEF[g.k].unit}</span>`).join('');
     return `<article class="lv ${st.open?'':'locked'} ${L.sandbox?'sbx':''}" data-id="${L.id}">
-      <div class="lv-map"><img src="${levelThumb(L)}" alt="${L.name}地圖縮圖">${st.open?'':`<div class="lv-lock">${ic('i-lock')}<span>${st.why}</span></div>`}</div>
+      <div class="lv-map"><img src="${levelThumb(L)}" alt="${$t`${L.name}地圖縮圖`}">${st.open?'':`<div class="lv-lock">${ic('i-lock')}<span>${st.why}</span></div>`}</div>
       <div class="lv-body">
-        <div class="lv-top"><span class="lv-no">${L.sandbox?'測試':L.tutorial?'導引':`第 ${L.no} 關`}</span><span class="pill info">${L.tag}</span>
-          ${L.sandbox||L.tutorial?(L.tutorial&&pr?'<span class="pill good" style="margin-left:auto">已完成</span>':''):`<span class="lv-stars" aria-label="${stars} 顆星">${[0,1,2].map(k=>`<svg class="ic ${k<stars?'on':''}"><use href="#i-star"/></svg>`).join('')}</span>`}</div>
+        <div class="lv-top"><span class="lv-no">${L.sandbox?$t`測試`:L.tutorial?$t`導引`:$t`第 ${L.no} 關`}</span><span class="pill info">${L.tag}</span>
+          ${L.sandbox||L.tutorial?(L.tutorial&&pr?`<span class="pill good" style="margin-left:auto">${$t`已完成`}</span>`:''):`<span class="lv-stars" aria-label="${$t`${stars} 顆星`}">${[0,1,2].map(k=>`<svg class="ic ${k<stars?'on':''}"><use href="#i-star"/></svg>`).join('')}</span>`}</div>
         <h3>${L.name}</h3>
         <p>${L.desc}</p>
         ${goals?`<div class="lv-goals">${goals}</div>`:''}
-        <div class="lv-meta">${L.tutorial?'約 3 分鐘・跟著提示操作':L.sandbox?'不限回合・資金無限':`${L.turns} 季・難度 ${'●'.repeat(L.diff)}${'○'.repeat(5-L.diff)}`}${pr?`・最佳 ${pr.grade}`:''}</div>
-        <div class="lv-act">${st.open?(sv&&!sv.over&&!L.tutorial?`<button class="btn" data-new="${L.id}">重新開始</button><button class="btn pri" data-go="${L.id}">繼續 ${dateLabel(sv.turn)}</button>`:`<button class="btn pri" data-new="${L.id}">${pr?'再玩一次':'開始'}</button>`):'<button class="btn" disabled>尚未開放</button>'}</div>
+        <div class="lv-meta">${L.tutorial?$t`約 3 分鐘・跟著提示操作`:L.sandbox?$t`不限回合・資金無限`:$t`${L.turns} 季・難度 ${'●'.repeat(L.diff)}${'○'.repeat(5-L.diff)}`}${pr?$t`・最佳 ${pr.grade}`:''}</div>
+        <div class="lv-act">${st.open?(sv&&!sv.over&&!L.tutorial?`<button class="btn" data-new="${L.id}">${$t`重新開始`}</button><button class="btn pri" data-go="${L.id}">${$t`繼續 ${dateLabel(sv.turn)}`}</button>`:`<button class="btn pri" data-new="${L.id}">${pr?$t`再玩一次`:$t`開始`}</button>`):`<button class="btn" disabled>${$t`尚未開放`}</button>`}</div>
       </div></article>`;
   };
   el.innerHTML=`<div class="lv-wrap">
-    <header class="lv-head"><div class="logo">${ic('i-turbine')}</div><div><h1>風場大亨</h1><p>選擇關卡・每一關一個新的風場課題</p></div>
-      ${ADMIN.visible?`<button class="btn" id="lvAdm">${ic('i-wrench')}管理介面</button>`:''}${S&&!S._backdrop?`<button class="btn" id="lvBack">${ic('i-arrow')}回到 ${LV.name}</button>`:''}</header>
+    <header class="lv-head"><div class="logo">${ic('i-turbine')}</div><div><h1>${$t`風場大亨`}</h1><p>${$t`選擇關卡・每一關一個新的風場課題`}</p></div>
+      <button class="btn" id="lvLang" data-silent="1">${LANG==='en'?$raw`中文`:'English'}</button>${ADMIN.visible?`<button class="btn" id="lvAdm">${$t`${ic('i-wrench')}管理介面`}</button>`:''}${S&&!S._backdrop?`<button class="btn" id="lvBack">${$t`${ic('i-arrow')}回到 ${LV.name}`}</button>`:''}</header>
     <div class="lv-grid">${LEVELS.map(card).join('')}</div>
-    <p class="lv-foot">${ADMIN.source==='shared'?'關卡開放設定由管理員統一管理。':'關卡開放設定與過關紀錄存在這個瀏覽器。'}過關＝評等 C 以上（至少一顆星）。</p>
+    <p class="lv-foot">${$t`${ADMIN.source==='shared'?$t`關卡開放設定由管理員統一管理。`:$t`關卡開放設定與過關紀錄存在這個瀏覽器。`}過關＝評等 C 以上（至少一顆星）。`}</p>
   </div>`;
+  $('#lvLang').onclick=()=>setLang(LANG==='en'?'zh':'en');
   el.hidden=false;modalOpen=true;
   for(const b of el.querySelectorAll('[data-go]'))b.onclick=()=>startLevel(b.dataset.go,false);
   for(const b of el.querySelectorAll('[data-new]'))b.onclick=()=>startLevel(b.dataset.new,true);

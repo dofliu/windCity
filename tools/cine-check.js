@@ -1,14 +1,14 @@
 // 事件動畫檢查：在測試關卡逐一強制觸發事件，截下事件演出與結算演出
 // 用法：node tools/cine-check.js [phone] [事件 id,…]
 const {chromium,devices}=require('playwright');const path=require('path');const fs=require('fs');
-const phone=process.argv.includes('phone');
-const only=(process.argv.find(a=>/^[a-z,]+$/i.test(a)&&a!=='phone')||'').split(',').filter(Boolean);
+const phone=process.argv.includes('phone'),hash=process.argv.includes('en')?'#lang=en':'';
+const only=(process.argv.find(a=>/^[a-z,]+$/i.test(a)&&a!=='phone'&&a!=='en')||'').split(',').filter(Boolean);
 const IDS=only.length?only:['typhoon','protest','lightning','curtail','monsoon','lowwind','steelUp','steelDown','bladeShort','subsidy','ppa','birds','heatwave','crane','town','techcoop'];
-const out=path.resolve(__dirname,'out','cine'+(phone?'-phone':''));fs.mkdirSync(out,{recursive:true});
+const out=path.resolve(__dirname,'out','cine'+(hash?'-en':'')+(phone?'-phone':''));fs.mkdirSync(out,{recursive:true});
 (async()=>{const b=await chromium.launch();
 const p=await b.newPage(phone?{...devices['iPhone 13']}:{viewport:{width:1280,height:800}});
 const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});
-await p.goto('file://'+path.resolve(__dirname,'..','index.html'));await p.waitForTimeout(1200);
+await p.goto('file://'+path.resolve(__dirname,'..','index.html')+hash);await p.waitForTimeout(1200);
 await p.evaluate(()=>{try{localStorage.setItem('windcity:tutDone','1')}catch(e){};window.__wft.startLevel('sandbox',true);closeModal();
   const g=window.__wft,S=g.S;S.sbx.events=true;
   // 自動挑可蓋的格子：先蓋兩座變電站，再在範圍內蓋 10 部風機（含靠近民宅的）

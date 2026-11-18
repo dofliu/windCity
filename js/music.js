@@ -18,31 +18,31 @@ const FORM=['A','B','A','B'];
 // drums：k 大鼓、s 小鼓（或拍手）、h 腳踏鈸（或沙鈴）、o 開鈸、p 打擊樂；X 重音、x 一般
 // bass：1 根音、3 三音、5 五音、7 小七度、8 高八度
 const SONGS={
-  theme:{name:'風場大亨',bpm:108,swing:.1,key:60,scale:'major',lead:'marimba',lead2:'glock',snare:'clap',hat:'hat',perc:'wood',comp:'pluck',
+  theme:{name:$t`風場大亨`,bpm:108,swing:.1,key:60,scale:'major',lead:'marimba',lead2:'glock',snare:'clap',hat:'hat',perc:'wood',comp:'pluck',
     A:{prog:['I','IV','vi','V'],rh:[2,1],k:'X.......X.......',s:'....x.......x...',h:'..x...x...x...x.',p:'',bass:'1.....5.8.......',comp:'x..x..x.....x...'},
     B:{prog:['IV','V','iii','vi'],rh:[0,4],k:'X.....x.X.......',s:'....X.......X...',h:'x.x.x.x.x.x.x.x.',p:'..............x.',bass:'1..1..5.8...5...',comp:'..x...x...x...x.'}},
-  morning:{name:'海風早晨',bpm:112,swing:.1,key:65,scale:'major',lead:'marimba',lead2:'glock',snare:'clap',hat:'hat',perc:'shaker',comp:'pluck',
+  morning:{name:$t`海風早晨`,bpm:112,swing:.1,key:65,scale:'major',lead:'marimba',lead2:'glock',snare:'clap',hat:'hat',perc:'shaker',comp:'pluck',
     A:{prog:['I','V','vi','IV'],rh:[0,1],k:'X.....x.X.......',s:'....X.......X...',h:'x.x.x.x.x.x.x.x.',p:'',bass:'1..1..5.8...5.1.',comp:'x.....x.....x...'},
     B:{prog:['IV','V','I','vi'],rh:[2,3],k:'X...X...X...X...',s:'....X.......X...',h:'x.xxx.x.x.xxx.x.',o:'..............x.',p:'x.x.x.x.x.x.x.x.',bass:'1.18..1.5.15..8.',comp:'..x...x...x...x.'}},
-  march:{name:'風車進行曲',bpm:120,swing:0,key:60,scale:'major',lead:'square',lead2:'glock',snare:'snare',hat:'hat',perc:'',comp:'oompah',
+  march:{name:$t`風車進行曲`,bpm:120,swing:0,key:60,scale:'major',lead:'square',lead2:'glock',snare:'snare',hat:'hat',perc:'',comp:'oompah',
     A:{prog:['I','IV','V','I'],rh:[3,0],k:'X.......X.......',s:'....X..x....X.xx',h:'x...x...x...x...',p:'',bass:'1...5...1...5...',comp:'..x...x...x...x.'},
     B:{prog:['vi','ii','V7','I'],rh:[9,2],k:'X...X...X...X...',s:'x.x.X.x.x.x.X.xx',h:'x.x.x.x.x.x.x.x.',p:'',bass:'1...5...3...5...',comp:'..x...x...x...x.'}},
-  rice:{name:'稻浪',bpm:100,swing:.15,key:67,scale:'pent',lead:'flute',lead2:'glock',snare:'rim',hat:'shaker',perc:'wood',comp:'strum',
+  rice:{name:$t`稻浪`,bpm:100,swing:.15,key:67,scale:'pent',lead:'flute',lead2:'glock',snare:'rim',hat:'shaker',perc:'wood',comp:'strum',
     A:{prog:['I','vi','IV','V'],rh:[1,4],k:'X.......X.....x.',s:'....x.......x...',h:'x.x.x.x.x.x.x.x.',p:'..x...x...x...xx',bass:'1.....5.1...5...',comp:'x..x..x.x.x.x...'},
     B:{prog:['vi','IV','I','V'],rh:[8,0],k:'X.....x.X.....x.',s:'....X.......X...',h:'xxxxxxxxxxxxxxxx',p:'..x...x...x.x.xx',bass:'1..1..5.1..1..5.',comp:'x..x..x.x.x.x...'}},
-  beach:{name:'夏日沙灘',bpm:108,swing:.08,key:62,scale:'major',lead:'steel',lead2:'marimba',snare:'rim',hat:'shaker',perc:'bongo',comp:'skank',
+  beach:{name:$t`夏日沙灘`,bpm:108,swing:.08,key:62,scale:'major',lead:'steel',lead2:'marimba',snare:'rim',hat:'shaker',perc:'bongo',comp:'skank',
     A:{prog:['I','IV','V','IV'],rh:[6,1],k:'X..x....X..x....',s:'....x.......x...',h:'xxxxxxxxxxxxxxxx',p:'..x.x..x..x.x..x',bass:'1..1..5.1..5..8.',comp:'..x...x...x...x.'},
     B:{prog:['I','vi','ii','V'],rh:[4,5],k:'X..x....X..x....',s:'....X.......X...',h:'xxxxxxxxxxxxxxxx',p:'x.x.x..xx.x.x..x',bass:'1..1..5.1..5..8.',comp:'..x...x...x...x.'}},
-  build:{name:'工地進行式',bpm:104,swing:.2,key:64,scale:'mixo',lead:'brass',lead2:'',snare:'snare',hat:'hat',perc:'',comp:'organ',
+  build:{name:$t`工地進行式`,bpm:104,swing:.2,key:64,scale:'mixo',lead:'brass',lead2:'',snare:'snare',hat:'hat',perc:'',comp:'organ',
     A:{prog:['I7','I7','IV7','I7'],rh:[7,2],k:'X..x..x...X..x..',s:'....X..x.x..X...',h:'x.xxx.xxx.xxx.xx',p:'',bass:'1..8..1.....5.7.',comp:'..x..x....x..x..'},
     B:{prog:['IV7','IV7','V7','I7'],rh:[5,9],k:'X..x..x...X..x..',s:'....X..x.x..X..x',h:'x.xxx.xxx.xxx.xx',o:'..x.......x.....',p:'',bass:'1..8..1.....5.7.',comp:'..x..x....x..x..'}},
-  winter:{name:'北風吹',bpm:116,swing:0,key:62,scale:'major',lead:'glock',lead2:'flute',snare:'clap',hat:'hat',perc:'',comp:'arp',
+  winter:{name:$t`北風吹`,bpm:116,swing:0,key:62,scale:'major',lead:'glock',lead2:'flute',snare:'clap',hat:'hat',perc:'',comp:'arp',
     A:{prog:['vi','IV','I','V'],rh:[0,2],k:'X...X...X...X...',s:'....X.......X...',h:'..x...x...x...x.',p:'',bass:'1.1.8.1.1.1.8.5.',comp:'xxxxxxxxxxxxxxxx'},
     B:{prog:['IV','V','vi','I'],rh:[3,1],k:'X...X...X...X...',s:'....X.......X...',h:'.xx..xx..xx..xx.',o:'..x...x...x...x.',p:'',bass:'1.1.8.1.1.1.8.5.',comp:'xxxxxxxxxxxxxxxx'}},
-  autumn:{name:'秋收',bpm:96,swing:.12,key:65,scale:'major',lead:'whistle',lead2:'marimba',snare:'rim',hat:'hat',perc:'wood',comp:'strum',
+  autumn:{name:$t`秋收`,bpm:96,swing:.12,key:65,scale:'major',lead:'whistle',lead2:'marimba',snare:'rim',hat:'hat',perc:'wood',comp:'strum',
     A:{prog:['I','iii','IV','V'],rh:[4,0],k:'X.......X..x....',s:'....X.......X...',h:'x.x.x.x.x.x.x.x.',p:'',bass:'1...5.1.1...5...',comp:'x..x..x.x.x.x...'},
     B:{prog:['IV','I','ii','V'],rh:[1,6],k:'X.......X..x....',s:'....X.......X...',h:'x.x.x.x.x.x.x.x.',p:'......x.......x.',bass:'1...5.1.1...5...',comp:'x..x..x.x.x.x...'}},
-  storm:{name:'颱風警報',bpm:132,swing:0,key:62,scale:'minor',lead:'square',lead2:'',snare:'snare',hat:'hat',perc:'tom',comp:'arp',
+  storm:{name:$t`颱風警報`,bpm:132,swing:0,key:62,scale:'minor',lead:'square',lead2:'',snare:'snare',hat:'hat',perc:'tom',comp:'arp',
     A:{prog:['i','bVI','bIII','bVII'],rh:[5,7],k:'X..x..X.X..x..X.',s:'....X.......X..x',h:'x.x.x.x.x.x.x.x.',p:'',bass:'1.1.1.1.1.1.1.1.',comp:'x.x.x.x.x.x.x.x.'},
     B:{prog:['iv','i','bVII','V'],rh:[9,8],k:'X..x..X.X..x..X.',s:'....X.......X.xx',h:'xxxxxxxxxxxxxxxx',p:'x...x...x...x.x.',bass:'1.1.1.1.1.1.1.1.',comp:'xxxxxxxxxxxxxxxx'}},
 };
@@ -184,7 +184,7 @@ function grooveSchedule(){
 }
 function musicNext(){if(!GM.st)return;const pool=POOLS[GM.mood]||POOLS.menu;let id=nextInPool(GM.mood);if(id===GM.st.id&&pool.length>1)id=nextInPool(GM.mood);GM.pend=id}
 function npRefresh(){const el=document.getElementById('npName');if(el)el.textContent=nowPlaying()}
-const nowPlaying=()=>SETTINGS.musicStyle==='calm'?'悠閒氛圍（隨季節即興）':GM.st?SONGS[GM.pend||GM.st.id].name:SONGS[(POOLS[AU.mood]||POOLS.menu)[0]].name;
+const nowPlaying=()=>SETTINGS.musicStyle==='calm'?$t`悠閒氛圍（隨季節即興）`:GM.st?SONGS[GM.pend||GM.st.id].name:SONGS[(POOLS[AU.mood]||POOLS.menu)[0]].name;
 
 // ---------- 離線渲染（試聽與測試用）----------
 function renderSong(id,secs,startBar=-2){

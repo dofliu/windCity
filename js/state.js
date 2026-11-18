@@ -122,56 +122,56 @@ function pickFault(){const tot=FAULTS.reduce((s,f)=>s+f.w,0);let r=GR()*tot;for(
 
 // ================= rules =================
 function check(tl,i,j){
-  const t=tile(i,j);if(!t)return {ok:false,r:'超出地圖範圍'};
+  const t=tile(i,j);if(!t)return {ok:false,r:$t`超出地圖範圍`};
   const p=parcelAt(i,j),sb=SBX(),free=sb&&S.sbx.free;
   if(tl==='buy'){
-    if(p.owned)return {ok:false,r:'這塊地已經是你的了',p};
+    if(p.owned)return {ok:false,r:$t`這塊地已經是你的了`,p};
     const c=parcelPrice(p),ok=S.cash-c>=-credit();
-    return {ok,r:ok?'':'資金與信用額度不足',cost:{cash:c,steel:0,blades:0},p};
+    return {ok,r:ok?'':$t`資金與信用額度不足`,cost:{cash:c,steel:0,blades:0},p};
   }
-  if(!p.owned)return {ok:false,r:`地塊 ${parcelName(p)} 尚未取得，請先到「土地」購買`};
-  if(t.house)return {ok:false,r:'民宅用地無法使用'};
-  if(t.o)return {ok:false,r:'這一格已經有設施'};
+  if(!p.owned)return {ok:false,r:$t`地塊 ${parcelName(p)} 尚未取得，請先到「土地」購買`};
+  if(t.house)return {ok:false,r:$t`民宅用地無法使用`};
+  if(t.o)return {ok:false,r:$t`這一格已經有設施`};
   const m=MODELS[tl],fd=FAC[tl],src=m||fd;
-  if(!src)return {ok:false,r:'未知的建物'};
+  if(!src)return {ok:false,r:$t`未知的建物`};
   const cost={cash:src.cash,steel:src.steel||0,blades:m?m.blades:0};
   let r='';
   if(m){
-    if(!lvModels().includes(tl)&&!sb)r='這一關不能使用此機型';
-    else if(m.tech&&!S.tech[m.tech])r='尚未研發此機型';
-    else if(m.floating&&t.t!=='deep')r='浮動式機組要建在深海';
-    else if(m.offshore&&!m.floating&&t.t!=='shallow')r='固定式離岸機組只能建在淺海（深海請用浮動式）';
-    else if(!m.offshore&&isWater(t))r='陸域機組不能建在水域';
-    else if(t.road)r='不能建在道路上';
-    else if(t.tree&&!free)r='這裡有林木，請先用「拆除」清除';
-    else if(!free&&!m.offshore&&houseNear(i,j,2))r='距民宅不足 2 格，違反噪音管制標準';
-    else if(!free&&turbNear(i,j))r='緊鄰其他風機，轉子會互相干涉';
-    else if(!free&&m.needRoad&&!nearRoad(i,j,1))r='大型機組必須緊鄰道路，葉片才運得進來';
-    else if(!sb&&S.support<30)r='民眾支持度低於 30%，主管機關暫停核發建照';
-    else if(!sb&&offJob({model:tl})&&!facsOf('port').length)r='離岸施工要先蓋「運維港口」';
-    else if(!sb&&offJob({model:tl})&&vesselBusy()>=S.vessels)r='沒有空閒的工作船（到市場租用）';
-    else if(!sb&&!offJob({model:tl})&&crewBusy()>=S.crews)r='所有工班都在工地上，請到市場招募';
+    if(!lvModels().includes(tl)&&!sb)r=$t`這一關不能使用此機型`;
+    else if(m.tech&&!S.tech[m.tech])r=$t`尚未研發此機型`;
+    else if(m.floating&&t.t!=='deep')r=$t`浮動式機組要建在深海`;
+    else if(m.offshore&&!m.floating&&t.t!=='shallow')r=$t`固定式離岸機組只能建在淺海（深海請用浮動式）`;
+    else if(!m.offshore&&isWater(t))r=$t`陸域機組不能建在水域`;
+    else if(t.road)r=$t`不能建在道路上`;
+    else if(t.tree&&!free)r=$t`這裡有林木，請先用「拆除」清除`;
+    else if(!free&&!m.offshore&&houseNear(i,j,2))r=$t`距民宅不足 2 格，違反噪音管制標準`;
+    else if(!free&&turbNear(i,j))r=$t`緊鄰其他風機，轉子會互相干涉`;
+    else if(!free&&m.needRoad&&!nearRoad(i,j,1))r=$t`大型機組必須緊鄰道路，葉片才運得進來`;
+    else if(!sb&&S.support<30)r=$t`民眾支持度低於 30%，主管機關暫停核發建照`;
+    else if(!sb&&offJob({model:tl})&&!facsOf('port').length)r=$t`離岸施工要先蓋「運維港口」`;
+    else if(!sb&&offJob({model:tl})&&vesselBusy()>=S.vessels)r=$t`沒有空閒的工作船（到市場租用）`;
+    else if(!sb&&!offJob({model:tl})&&crewBusy()>=S.crews)r=$t`所有工班都在工地上，請到市場招募`;
   }else if(tl==='road'){
-    if(isWater(t))r='不能在水域鋪路';else if(t.road)r='這裡已經是道路';else if(t.tree)r='請先清除林木';
+    if(isWater(t))r=$t`不能在水域鋪路`;else if(t.road)r=$t`這裡已經是道路`;else if(t.tree)r=$t`請先清除林木`;
   }else if(fd.water){
-    if(!isWater(t))r=`${fd.name}要建在海上`;
-    else if(!facsOf('sub').length)r='需要先有陸上變電站接收（海纜上岸點）';
+    if(!isWater(t))r=$t`${fd.name}要建在海上`;
+    else if(!facsOf('sub').length)r=$t`需要先有陸上變電站接收（海纜上岸點）`;
     else cost.cash=Math.round((fd.cash+cableCost(i,j))*10)/10;
   }else{
-    if(isWater(t))r='設施不能建在水域';else if(t.road)r='不能建在道路上';else if(t.tree&&!free)r='這裡有林木，請先用「拆除」清除';
-    else if(tl==='port'&&!nextToWater(i,j))r='港口要緊鄰海水';
+    if(isWater(t))r=$t`設施不能建在水域`;else if(t.road)r=$t`不能建在道路上`;else if(t.tree&&!free)r=$t`這裡有林木，請先用「拆除」清除`;
+    else if(tl==='port'&&!nextToWater(i,j))r=$t`港口要緊鄰海水`;
   }
   if(!r&&!sb){
-    if(S.cash-cost.cash<-credit())r='資金與信用額度不足';
-    else if(S.steel<cost.steel)r=`鋼材不足：需要 ${cost.steel} t，庫存 ${Math.round(S.steel)} t`;
-    else if(S.blades<cost.blades)r=`葉片不足：需要 ${cost.blades} 組，庫存 ${S.blades} 組`;
+    if(S.cash-cost.cash<-credit())r=$t`資金與信用額度不足`;
+    else if(S.steel<cost.steel)r=$t`鋼材不足：需要 ${cost.steel} t，庫存 ${Math.round(S.steel)} t`;
+    else if(S.blades<cost.blades)r=$t`葉片不足：需要 ${cost.blades} 組，庫存 ${S.blades} 組`;
   }
   return {ok:!r,r,cost};
 }
 function bullInfo(t){
   const p=parcelAt(t.i,t.j);
-  if(!p.owned)return {ok:false,r:'只能拆除自己土地上的東西'};
-  if(t.house)return {ok:false,r:'不能拆除民宅'};
+  if(!p.owned)return {ok:false,r:$t`只能拆除自己土地上的東西`};
+  if(t.house)return {ok:false,r:$t`不能拆除民宅`};
   const o=objOf(t);
   if(o){
     if(o.type==='turb'){const m=MODELS[o.model];const b=o.state==='build';return {ok:true,o,cash:Math.round(m.cash*(b?.8:.3)),steel:Math.round(m.steel*(b?1:.5)),blades:b?m.blades:0}}
@@ -179,7 +179,7 @@ function bullInfo(t){
   }
   if(t.tree)return {ok:true,tree:true,cost:1.5};
   if(t.road)return {ok:true,road:true};
-  return {ok:false,r:'這裡沒有可以拆除的東西'};
+  return {ok:false,r:$t`這裡沒有可以拆除的東西`};
 }
 
 // ================= actions =================
@@ -193,13 +193,13 @@ function build(tl,t,quiet){
   const c=check(tl,t.i,t.j);
   if(!c.ok){if(!quiet)toast(c.r,'bad');return false}
   if(!SBX()){S.cash-=c.cost.cash;S.steel-=c.cost.steel;S.blades-=c.cost.blades}
-  if(MODELS[tl]){makeTurb(tl,t);if(!quiet)toast(SBX()&&S.sbx.instant?`${MODELS[tl].name} 立即完工`:`${MODELS[tl].name} 開工，${MODELS[tl].build} 季後完工`,'good')}
+  if(MODELS[tl]){makeTurb(tl,t);if(!quiet)toast(SBX()&&S.sbx.instant?$t`${MODELS[tl].name} 立即完工`:$t`${MODELS[tl].name} 開工，${MODELS[tl].build} 季後完工`,'good')}
   else if(tl==='road'){t.road=true;if(!quiet)buildCache()}
   else{
     if(t.tree){t.tree=0;if(t.t==='forest')t.t='grass'}
     S.objs.push({id:S.nid++,type:'fac',kind:tl,i:t.i,j:t.j,_born:time});
-    if(tl==='mast'){survey(t.i+.5,t.j+.5,FAC.mast.range);if(!quiet)toast('測風塔啟用，周邊風況已量測','good')}
-    else if(!quiet)toast(tl==='osub'?`海上變電站完工，含海纜 ${fmt(cableCost(t.i,t.j),1)}M`:`${FAC[tl].name}完工`,'good');
+    if(tl==='mast'){survey(t.i+.5,t.j+.5,FAC.mast.range);if(!quiet)toast($t`測風塔啟用，周邊風況已量測`,'good')}
+    else if(!quiet)toast(tl==='osub'?$t`海上變電站完工，含海纜 ${fmt(cableCost(t.i,t.j),1)}M`:$t`${FAC[tl].name}完工`,'good');
   }
   if(quiet)return true;
   sfx(tl==='road'?'road':'build');fxDust(t.i,t.j,elev(t),false);
@@ -212,23 +212,23 @@ function doBulldoze(t){
   if(b.o){
     if(!SBX()){S.cash+=b.cash;S.steel=Math.min(steelCap(),S.steel+b.steel);S.blades=Math.min(bladeCap(),S.blades+b.blades)}
     S.objs=S.objs.filter(o=>o!==b.o);if(selected&&selected.o===b.o)closeInspector();
-    if(!SBX())floatText(t.i+.5,t.j+.5,elev(t),`+${fmt(b.cash,0)}M`,'#8ff0b4');toast(`已拆除 ${tname(b.o)}${SBX()?'':`，回收 ${b.cash}M`}`);
+    if(!SBX())floatText(t.i+.5,t.j+.5,elev(t),`+${fmt(b.cash,0)}M`,'#8ff0b4');toast($t`已拆除 ${tname(b.o)}${SBX()?'':$t`，回收 ${b.cash}M`}`);
   }else if(b.tree){
-    if(S.cash-1.5<-credit()){toast('資金不足','bad');return}
+    if(S.cash-1.5<-credit()){toast($t`資金不足`,'bad');return}
     if(!SBX())S.cash-=1.5;t.tree=0;if(t.t==='forest')t.t='grass';if(!SBX())S.support=Math.max(0,S.support-.3);buildCache();if(!SBX())floatText(t.i+.5,t.j+.5,elev(t),'−1.5M','#ffd36b');
   }else if(b.road){t.road=false;buildCache()}
   sfx('bulldoze');fxDust(t.i,t.j,elev(t),true);
   reindex();rebuildDrawables();updateHUD();save();
 }
 function buyParcel(p){
-  const c=parcelPrice(p);if(S.cash-c<-credit()){toast('資金與信用額度不足','bad');return}
-  S.cash-=c;p.owned=true;surveyParcel(p);toast(`取得地塊 ${parcelName(p)}，完成風況初勘`,'good');
+  const c=parcelPrice(p);if(S.cash-c<-credit()){toast($t`資金與信用額度不足`,'bad');return}
+  S.cash-=c;p.owned=true;surveyParcel(p);toast($t`取得地塊 ${parcelName(p)}，完成風況初勘`,'good');
   const cx=p.px*PS+PS/2,cy=p.py*PS+PS/2;floatText(cx,cy,2,`−${c}M`,'#ffd36b');sfx('coin');fxSparkle(cx-.5,cy-.5,1,0);
   reindex();updateHUD();save();
 }
 function research(k){
   const c=techCost(k);if(S.tech[k])return;
-  if(S.cash-c<-credit()){toast('資金與信用額度不足','bad');return}
+  if(S.cash-c<-credit()){toast($t`資金與信用額度不足`,'bad');return}
   S.cash-=c;S.tech[k]=true;if(S.flags.techDisc)S.flags.techDisc=0;
-  toast(`研發完成：${TECH[k].name}`,'good');sfx('research');updateHUD();renderTray();save();
+  toast($t`研發完成：${TECH[k].name}`,'good');sfx('research');updateHUD();renderTray();save();
 }
