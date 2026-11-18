@@ -286,3 +286,38 @@ button:disabled{cursor:not-allowed;opacity:.45}
 .sbx-tg span{display:block;font-size:11px;color:var(--muted);margin-top:2px;line-height:1.45}
 .sbx-chips{display:flex;flex-wrap:wrap;gap:6px}
 .sbx-chips .btn[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+
+/* ===== polish: motion & feedback ===== */
+.btn,.tbtn,.cat,.lay,.chip,.item,.choice,#zoom button{transition:transform .12s ease,background-color .15s ease,border-color .15s ease,box-shadow .15s ease}
+.btn:active,.tbtn:active,.cat:active,.lay:active,.choice:active,#zoom button:active{transform:scale(.95)}
+.item:hover{transform:translateY(-2px);background:var(--raise-2)}
+.item:active{transform:scale(.97)}
+.choice:hover{transform:translateX(2px)}
+.lv{transition:transform .18s ease,box-shadow .18s ease}
+.lv:not(.locked):hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(0,0,0,.35)}
+#modal:not([hidden]) .card{animation:pop .24s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+#levels:not([hidden]) .lv{animation:rise .4s ease-out both}
+#levels .lv:nth-child(2){animation-delay:.04s}#levels .lv:nth-child(3){animation-delay:.08s}#levels .lv:nth-child(4){animation-delay:.12s}
+#levels .lv:nth-child(5){animation-delay:.16s}#levels .lv:nth-child(6){animation-delay:.2s}#levels .lv:nth-child(7){animation-delay:.24s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.chip.flash-up{animation:flashUp .8s ease-out}
+.chip.flash-down{animation:flashDown .8s ease-out}
+@keyframes flashUp{0%{background:rgba(88,209,140,.45)}100%{background:var(--raise)}}
+@keyframes flashDown{0%{background:rgba(255,102,86,.45)}100%{background:var(--raise)}}
+#next{position:relative;overflow:hidden}
+#next::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.45) 50%,transparent 65%);transform:translateX(-120%);animation:sheen 4.5s ease-in-out infinite}
+@keyframes sheen{0%,70%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+#bSound[aria-pressed="false"] .ic{color:var(--bad)}
+/* 換季橫幅 */
+#qbanner{position:fixed;left:50%;top:38%;z-index:30;transform:translate(-50%,-50%);pointer-events:none;text-align:center;opacity:0;color:#fff;text-shadow:0 4px 24px rgba(0,20,30,.55)}
+#qbanner b{display:block;font:700 54px/1 var(--f-num);letter-spacing:.08em}
+#qbanner span{display:inline-block;margin-top:10px;font-size:15px;font-weight:700;letter-spacing:.2em;padding:6px 16px;border-radius:99px;background:rgba(12,25,33,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#qbanner.show{animation:qb 2.4s ease forwards}
+@keyframes qb{0%{opacity:0;transform:translate(-50%,-40%) scale(.92)}14%{opacity:1;transform:translate(-50%,-50%) scale(1)}72%{opacity:1;transform:translate(-50%,-50%)}100%{opacity:0;transform:translate(-50%,-58%)}}
+/* 設定 */
+.set-row{display:grid;grid-template-columns:minmax(110px,1fr) 2fr 40px;align-items:center;gap:10px;padding:8px 0}
+.set-row label{font-size:13.5px}
+.set-row output{font:600 15px var(--f-num);text-align:right}
+.set-row input[type=range]{width:100%;accent-color:var(--accent)}
+@media (prefers-reduced-motion:reduce){#qbanner.show{animation:none;opacity:0}#next::after,.lv,#modal .card{animation:none!important}}

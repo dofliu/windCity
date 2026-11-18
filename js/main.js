@@ -29,19 +29,21 @@ function startLevel(id,fresh){
   const sv=fresh?null:loadSave(id);
   if(sv){enterState(sv);if(S.over)showFinal()}
   else{enterState(newState(id));save();showBrief(false)}
+  sfx('start');
 }
 function wire(){
   for(const b of document.querySelectorAll('.cat'))b.onclick=()=>setCat(b.dataset.cat);
   for(const b of document.querySelectorAll('.lay'))b.onclick=()=>{autoOverlay=false;setOverlay(overlay===b.dataset.ov?null:b.dataset.ov)};
   $('#next').onclick=endTurn;
   $('#bMarket').onclick=showMarket;$('#bGoals').onclick=showGoals;$('#bMenu').onclick=showMenu;
+  $('#bSound').onclick=()=>{audioStart();SETTINGS.mute=!SETTINGS.mute;saveSettings();applyVolumes();soundIcon()};soundIcon();
   $('#zIn').onclick=()=>zoomBy(1.25);$('#zOut').onclick=()=>zoomBy(.8);$('#zHome').onclick=()=>centerOnOwned(true);
   $('#kpiHead').onclick=()=>{kpiCollapsed=!kpiCollapsed;$('#kpi').classList.toggle('collapsed',kpiCollapsed);if(!kpiCollapsed)drawSpark()};
   window.addEventListener('resize',()=>{resize();drawSpark()});
   window.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modalOpen)return;if(preview)cancelPreview();else setCat('inspect')}});
 }
 function start(data){
-  resize();initSprites();wire();loadProgress();adminInit();
+  resize();initSprites();wire();loadProgress();adminInit();audioArm();
   if(W<700){kpiCollapsed=true;$('#kpi').classList.add('collapsed')}
   if(data&&data.S&&data.S.ver===2){enterState(data.S);requestAnimationFrame(frame);return}
   let last=null;try{last=localStorage.getItem(LAST_KEY)}catch(e){}
