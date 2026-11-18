@@ -16,7 +16,11 @@ function resize(){
 }
 
 // ---------- primitives ----------
-function poly(c,pts,fill,stroke,lw){c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let k=1;k<pts.length;k++)c.lineTo(pts[k][0],pts[k][1]);c.closePath();if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.strokeStyle=stroke;c.lineWidth=lw||.6;c.stroke()}}
+// 卡通風格：OUTLINE > 0 時，poly 會自動描上深色輪廓線
+let OUTLINE=0,INTRO_T=-99;const OL='#21323a';
+const CART=()=>SETTINGS.style!=='detail';
+const easeBack=k=>1+2.70158*Math.pow(k-1,3)+1.70158*Math.pow(k-1,2);
+function poly(c,pts,fill,stroke,lw){c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let k=1;k<pts.length;k++)c.lineTo(pts[k][0],pts[k][1]);c.closePath();if(fill){c.fillStyle=fill;c.fill()}if(OUTLINE&&(fill||stroke)){c.strokeStyle=OL;c.lineWidth=Math.max(OUTLINE,stroke?(lw||.6):0);c.stroke()}else if(stroke){c.strokeStyle=stroke;c.lineWidth=lw||.6;c.stroke()}}
 function topPath(c,i,j,e,ins=0){const a=iso(i+ins,j+ins,e),b=iso(i+1-ins,j+ins,e),d=iso(i+1-ins,j+1-ins,e),l=iso(i+ins,j+1-ins,e);c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.lineTo(d[0],d[1]);c.lineTo(l[0],l[1]);c.closePath()}
 function box(c,a0,b0,w,d,h,z,top,left,right,line){
   const x0=a0-w/2,x1=a0+w/2,y0=b0-d/2,y1=b0+d/2;
@@ -36,7 +40,17 @@ function gable(c,a0,b0,w,d,z,rh,ov,roofF,roofB,wallR){
   c.strokeStyle='rgba(0,0,0,.2)';c.lineWidth=.6;c.beginPath();c.moveTo(rl[0],rl[1]);c.lineTo(rr[0],rr[1]);c.stroke();
 }
 function shadowEl(c,x,y,rx,ry,a=.22){c.fillStyle=`rgba(16,44,40,${a})`;c.beginPath();c.ellipse(x,y,rx,ry,0,0,6.283);c.fill()}
-function mkSprite(w,h,ax,ay,fn){const cvs=document.createElement('canvas');cvs.width=Math.ceil(w*SS);cvs.height=Math.ceil(h*SS);const c=cvs.getContext('2d');c.scale(SS,SS);c.translate(ax,ay);fn(c);return {cv:cvs,w,h,ax,ay}}
+function mkSprite(w,h,ax,ay,fn){
+  const cart=CART(),pad=cart?2:0,cvs=document.createElement('canvas');cvs.width=Math.ceil((w+pad*2)*SS);cvs.height=Math.ceil((h+pad*2)*SS);
+  const c=cvs.getContext('2d');c.scale(SS,SS);c.translate(ax+pad,ay+pad);OUTLINE=cart?.42:0;fn(c);OUTLINE=0;
+  if(!cart)return {cv:cvs,w,h,ax,ay};
+  // 外輪廓：把剪影染成深色，往八個方向位移後墊在底下
+  const sil=document.createElement('canvas');sil.width=cvs.width;sil.height=cvs.height;const sc=sil.getContext('2d');sc.drawImage(cvs,0,0);sc.globalCompositeOperation='source-in';sc.fillStyle=OL;sc.fillRect(0,0,sil.width,sil.height);
+  const out=document.createElement('canvas');out.width=cvs.width;out.height=cvs.height;const oc=out.getContext('2d'),r=1.15*SS;
+  for(let a=0;a<8;a++)oc.drawImage(sil,Math.cos(a*Math.PI/4)*r,Math.sin(a*Math.PI/4)*r);
+  oc.drawImage(cvs,0,0);
+  return {cv:out,w:w+pad*2,h:h+pad*2,ax:ax+pad,ay:ay+pad};
+}
 function blit(c,s,x,y,k=1){c.drawImage(s.cv,x-s.ax*k,y-s.ay*k,s.w*k,s.h*k)}
 
 // ---------- sprites ----------
@@ -44,6 +58,17 @@ const SPR={};
 // 樹種：0 杉木 1 闊葉樹 2 木麻黃 3 嫩綠闊葉 4 檳榔樹 5 竹叢 6 秋色樹 7 開花樹
 const TREE_PAL={1:['#2f6630','#4f9440','#9fd06a'],3:['#4a8a32','#79b94a','#c6ea86'],6:['#9a3f1e','#d9772f','#ffc06a'],7:['#b0567a','#e892b4','#ffe0ec']};
 function treeBroad(c,pal,blossom){
+  if(CART()){ // 卡通：平塗兩階明暗＋亮點
+    shadowEl(c,2.5,0,8,3.4,.22);
+    c.strokeStyle='#6a4a2c';c.lineCap='round';c.lineWidth=2.2;c.beginPath();c.moveTo(0,0);c.lineTo(0,-8);c.stroke();
+    const blobs=[[-4.5,-11.5,4.8],[4.4,-11.8,4.8],[0,-10.5,5.2],[-2.8,-16,5.2],[3,-16.5,5],[0,-19.5,4.6]];
+    c.fillStyle=pal[0];for(const[x,y,r]of blobs){c.beginPath();c.arc(x+.6,y+.8,r,0,6.283);c.fill()}
+    c.fillStyle=pal[1];for(const[x,y,r]of blobs){c.beginPath();c.arc(x,y,r*.92,0,6.283);c.fill()}
+    c.fillStyle=pal[2];for(const[x,y,r]of blobs.slice(3)){c.beginPath();c.arc(x-r*.28,y-r*.3,r*.5,0,6.283);c.fill()}
+    c.fillStyle='rgba(255,255,255,.75)';c.beginPath();c.ellipse(-3.8,-20,1.3,.8,-.5,0,6.283);c.fill();
+    if(blossom)for(let k=0;k<10;k++){c.fillStyle='#fff3f7';c.beginPath();c.arc(-6+((k*37)%12),-22+((k*53)%13),.8,0,6.283);c.fill()}
+    return;
+  }
   shadowEl(c,2.5,0,8,3.4,.22);
   c.strokeStyle='#6a4a2c';c.lineCap='round';c.lineWidth=2;c.beginPath();c.moveTo(0,0);c.lineTo(0,-8);c.stroke();
   c.lineWidth=.9;c.beginPath();c.moveTo(0,-6);c.lineTo(-2.5,-9.5);c.moveTo(0,-7);c.lineTo(2.6,-10);c.stroke();
@@ -172,6 +197,7 @@ function topColor(t,q){
   }
   if(!isWater(t))L+=(t.h-1)*2.2;
   L+=(t.v-.5)*(isWater(t)?1.5:3.5);
+  if(CART()){Sa=Math.min(95,Sa*1.2+6);L+=isWater(t)?4:2.5}
   return `hsl(${H},${Sa}%,${L}%)`;
 }
 function sidePoly(g,i,j,face,eT,eB){
@@ -315,6 +341,11 @@ function drawTile(g,t,q){
   if(bl&&elev(bl)>e)aoEdge(g,i,j,e,'L');
   if(bt&&elev(bt)>e)aoEdge(g,i,j,e,'T');
   if(!isWater(t)){topPath(g,i,j,e);g.strokeStyle='rgba(30,50,20,.05)';g.lineWidth=.6;g.stroke()}
+  if(CART()){ // 卡通：崖邊與地圖邊緣描上深色線
+    g.strokeStyle='rgba(33,50,58,.55)';g.lineWidth=1.1;g.lineCap='round';
+    if(el<e){const a=iso(i,j+1,e),b=iso(i+1,j+1,e),a2=iso(i,j+1,el),b2=iso(i+1,j+1,el);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);if(!nl){g.moveTo(a2[0],a2[1]);g.lineTo(b2[0],b2[1])}g.stroke()}
+    if(er<e){const a=iso(i+1,j,e),b=iso(i+1,j+1,e),a2=iso(i+1,j,er),b2=iso(i+1,j+1,er);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);if(!nr){g.moveTo(a2[0],a2[1]);g.lineTo(b2[0],b2[1])}g.stroke()}
+  }
   // 崖頂的受光邊
   if(!isWater(t)){g.lineWidth=.9;
     if(el<e){g.strokeStyle='rgba(255,255,220,.32)';const a=iso(i,j+1,e),b=iso(i+1,j+1,e);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke()}
@@ -367,7 +398,7 @@ function drawRotor(c,hub,m,ang,f,blur){
     c.closePath();
     const sh=Math.round(215+40*clamp(.5-ca*.35+sa*.25,0,1));
     c.fillStyle=`rgba(${sh},${sh+2>255?255:sh+2},${sh+4>255?255:sh+4},${blur?.85:1})`;c.fill();
-    c.strokeStyle='rgba(50,70,80,.28)';c.lineWidth=.45;c.stroke();
+    if(CART()){c.strokeStyle=OL;c.lineWidth=.8}else{c.strokeStyle='rgba(50,70,80,.28)';c.lineWidth=.45}c.stroke();
     if(m.mw>=6){c.strokeStyle='#d8473a';c.lineWidth=ch*.55;c.beginPath();c.moveTo(hub[0]+dx*.9,hub[1]+dy*.9);c.lineTo(hub[0]+dx*.98,hub[1]+dy*.98);c.stroke()}
   }
   const hr=2.4*(m.rr/40);const g=c.createRadialGradient(hub[0]-hr*.4,hub[1]-hr*.4,.2,hub[0],hub[1],hr);g.addColorStop(0,'#ffffff');g.addColorStop(1,'#b9c3c7');
@@ -415,7 +446,7 @@ function drawTurbine(c,x,y,m,ang,o){
   }
   if(done){
     c.lineCap='round';
-    c.strokeStyle='rgba(40,60,70,.35)';c.lineWidth=6.6*k;c.beginPath();c.moveTo(hub[0],hub[1]);c.lineTo(tail[0],tail[1]);c.stroke();
+    c.strokeStyle=CART()?OL:'rgba(40,60,70,.35)';c.lineWidth=(CART()?7.4:6.6)*k;c.beginPath();c.moveTo(hub[0],hub[1]);c.lineTo(tail[0],tail[1]);c.stroke();
     c.strokeStyle='#e8eded';c.lineWidth=5.3*k;c.beginPath();c.moveTo(hub[0],hub[1]);c.lineTo(tail[0],tail[1]);c.stroke();
     c.strokeStyle='#ffffff';c.lineWidth=1.6*k;c.beginPath();c.moveTo(hub[0],hub[1]-1.4*k);c.lineTo(tail[0],tail[1]-1.4*k);c.stroke();
     if(front)drawRotor(c,hub,m,ang,f,o.blur);
@@ -592,8 +623,9 @@ function drawWaterFx(c){
     const P=paths[a>.8?2:a>.5?1:0];P.moveTo(p[0]-4,p[1]+.5);P.quadraticCurveTo(p[0],p[1]-1.4,p[0]+4,p[1]+.5);
     if(t.t==='deep'&&wv>1.05&&((t.v*31)%1)<(wv-1)*1.6&&a>.6){caps.moveTo(p[0]-2,p[1]);caps.lineTo(p[0]+2.5,p[1]-.6);nc++}
   }
-  c.lineCap='round';c.lineWidth=.8;
-  paths.forEach((P,k)=>{c.strokeStyle=`rgba(255,255,255,${[.12,.22,.34][k]})`;c.stroke(P)});
+  const cart=CART();c.lineCap='round';c.lineWidth=cart?1.4:.8;
+  paths.forEach((P,k)=>{c.strokeStyle=`rgba(255,255,255,${(cart?[.2,.38,.6]:[.12,.22,.34])[k]})`;c.stroke(P)});
+  if(cart){c.fillStyle='rgba(255,255,255,.9)';for(const t of waterTiles){const tw=Math.sin(time*2.2+t.v*50);if(tw<.93)continue;const p=iso(t.i+.3+t.v*.4,t.j+.5,-.35),r=(tw-.93)*45+.6;c.beginPath();c.moveTo(p[0],p[1]-r*1.6);c.lineTo(p[0]+r*.35,p[1]-r*.35);c.lineTo(p[0]+r*1.6,p[1]);c.lineTo(p[0]+r*.35,p[1]+r*.35);c.lineTo(p[0],p[1]+r*1.6);c.lineTo(p[0]-r*.35,p[1]+r*.35);c.lineTo(p[0]-r*1.6,p[1]);c.lineTo(p[0]-r*.35,p[1]-r*.35);c.closePath();c.fill()}}
   if(nc){c.strokeStyle='rgba(255,255,255,.8)';c.lineWidth=1.3;c.stroke(caps)}
   c.lineCap='round';
   for(const f of foam){
@@ -682,16 +714,31 @@ function drawOverlays(c){
   }
 }
 function drawObjects(c){
+  const cart=CART();
   const f=flowNow(),storm=weatherFx==='storm',q=S.turn%4,sway=storm?.07:.012+.022*clamp(season().wind-.7,0,.5)*2;
   for(const d of drawList){
-    if(d.k==='tree'){const p=iso(d.x,d.y,d.e),h=(d.x*12.9898+d.y*78.233)%1;let sp=d.s;
+    if(d.k==='obj'){
+      const o=d.o,t=tile(o.i,o.j),p=iso(o.i+.5,o.j+.5,elev(t));
+      const age=time-(o._born??-99),grow=cart&&age<.8;
+      // 卡通：新建物彈出來（回彈＋壓扁拉長）
+      if(grow){const k=Math.min(1,age/.55),s=Math.max(.02,easeBack(k)),sq=1+Math.sin(Math.min(1,age/.8)*Math.PI*3)*.12*(1-Math.min(1,age/.8));c.save();c.translate(p[0],p[1]);c.scale(s/sq,s*sq);c.translate(-p[0],-p[1])}
+      OUTLINE=cart?.6:0;
+      if(o.type==='turb')drawTurbine(c,p[0],p[1],MODELS[o.model],o.ang||0,{state:o.state,prog:o.prog,flow:f,id:o.id,blur:(o._w||0)>2});
+      else drawFac(c,p[0],p[1],o.kind,o);
+      OUTLINE=0;if(grow)c.restore();
+      continue;
+    }
+    // 卡通：進入關卡時樹木與房子沿對角線一波波彈出
+    let pop=1;
+    if(cart){const k=(time-INTRO_T-(d.x+d.y)*.022)/.42;if(k<0)continue;if(k<1)pop=Math.max(.01,easeBack(k))}
+    const p=iso(d.x,d.y,d.e);
+    if(pop!==1){c.save();c.translate(p[0],p[1]);c.scale(pop,pop*(2-pop*.98));c.translate(-p[0],-p[1])}
+    if(d.k==='tree'){const h=(d.x*12.9898+d.y*78.233)%1;let sp=d.s;
       if((sp===1||sp===3)&&q===0&&h<.22)sp=7;else if((sp===1||sp===3)&&q===3&&h<.32)sp=6;
       const sw=RM?0:Math.sin(time*(storm?5:1.6)+d.x*3+d.y*2)*sway;
       if(sw){c.save();c.translate(p[0],p[1]);c.rotate(sw);blit(c,SPR.tree[sp],0,0,d.sc);c.restore()}else blit(c,SPR.tree[sp],p[0],p[1],d.sc)}
-    else if(d.k==='house'){const p=iso(d.x,d.y,d.e);blit(c,SPR.house[d.v],p[0],p[1],d.v===9?1:.95)}
-    else{const o=d.o,t=tile(o.i,o.j),p=iso(o.i+.5,o.j+.5,elev(t));
-      if(o.type==='turb')drawTurbine(c,p[0],p[1],MODELS[o.model],o.ang||0,{state:o.state,prog:o.prog,flow:f,id:o.id,blur:(o._w||0)>2});
-      else drawFac(c,p[0],p[1],o.kind,o)}
+    else if(d.k==='house')blit(c,SPR.house[d.v],p[0],p[1],d.v===9?1:.95);
+    if(pop!==1)c.restore();
   }
 }
 function drawGhost(c){
@@ -699,10 +746,10 @@ function drawGhost(c){
   if(!t||tool==='bulldoze'||tool==='buy')return;
   if(tool==='road'||t.o||t.house)return;
   const p=iso(t.i+.5,t.j+.5,elev(t));
-  c.save();c.globalAlpha=.62+.12*Math.sin(time*4);
+  c.save();c.globalAlpha=.62+.12*Math.sin(time*4);OUTLINE=CART()?.6:0;
   if(MODELS[tool])drawTurbine(c,p[0],p[1],MODELS[tool],time*1.5,{state:'run',flow:flowNow(),id:0});
   else if(FAC[tool])drawFac(c,p[0],p[1],tool,null);
-  c.restore();
+  OUTLINE=0;c.restore();
   if(MODELS[tool]&&!MODELS[tool].offshore===!isWater(t)){c.save();const o={model:tool,i:t.i,j:t.j};if(season().mix){wakeCone(c,o,NE,.4);wakeCone(c,o,SW,.4)}else wakeCone(c,o,flowNow(),.7);c.restore()}
 }
 function drawWindStreaks(c){
@@ -711,6 +758,13 @@ function drawWindStreaks(c){
   for(const w of winds){
     const a=Math.sin(Math.PI*clamp(w.life/w.max,0,1))*(storm?.55:.42);if(a<.02)continue;
     const p=iso(w.x,w.y,0);p[1]-=w.z;
+    if(CART()){ // 卡通：尾端捲起的風線
+      if((w.z|0)%2)continue;
+      const l=Math.hypot(fs[0],fs[1]),ux=fs[0]/l,uy=fs[1]/l,nx=-uy,ny=ux,len=l*L*1.2,wig=Math.sin(time*2+w.z)*2;
+      c.strokeStyle=`rgba(255,255,255,${Math.min(.9,a*1.7)})`;c.lineWidth=storm?1.8:1.5;
+      c.beginPath();c.moveTo(p[0]-ux*len,p[1]-uy*len);c.bezierCurveTo(p[0]-ux*len*.6+nx*wig,p[1]-uy*len*.6+ny*wig,p[0]-ux*len*.3-nx*wig,p[1]-uy*len*.3-ny*wig,p[0],p[1]);
+      const r=3.2,cx=p[0]+nx*r,cy=p[1]+ny*r,a0=Math.atan2(-ny,-nx);c.arc(cx,cy,r,a0,a0+Math.PI*1.5*(1+(ux>0?0:0)));c.stroke();continue;
+    }
     c.strokeStyle=`rgba(255,255,255,${a})`;c.lineWidth=storm?1.1:.9;
     c.beginPath();c.moveTo(p[0],p[1]);c.quadraticCurveTo(p[0]-fs[0]*L*.5,p[1]-fs[1]*L*.5-1.5*Math.sin(time*2+w.z),p[0]-fs[0]*L,p[1]-fs[1]*L);c.stroke();
   }
