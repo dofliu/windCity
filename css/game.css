@@ -362,3 +362,5 @@ button:disabled{cursor:not-allowed;opacity:.45}
 #cine.show{animation:cineIn .45s cubic-bezier(.34,1.56,.64,1)}
 @keyframes cineIn{from{transform:translate(-50%,-30px) scale(.9);opacity:0}to{transform:translate(-50%,0);opacity:1}}
 body.cine #top,body.cine #bottom,body.cine #layers,body.cine #zoom,body.cine #kpi,body.cine #insp,body.cine #legend{pointer-events:none;opacity:.35;transition:opacity .3s}
+.set-row.np{grid-template-columns:1fr auto;font-size:13.5px;color:var(--muted)}
+.set-row.np b{color:var(--text)}

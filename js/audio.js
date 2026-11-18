@@ -1,7 +1,7 @@
 // 風場大亨 — 音樂、環境音與音效（全部用 Web Audio 即時合成，不需要音檔）
 'use strict';
 const SET_KEY='windcity:settings';
-const SETTINGS={music:.5,sfx:.75,amb:.55,mute:false,daynight:true,style:'cartoon',cine:true};
+const SETTINGS={music:.5,sfx:.75,amb:.55,mute:false,daynight:true,style:'cartoon',cine:true,musicStyle:'upbeat'};
 try{Object.assign(SETTINGS,JSON.parse(localStorage.getItem(SET_KEY)||'{}'))}catch(e){}
 function saveSettings(){try{localStorage.setItem(SET_KEY,JSON.stringify(SETTINGS))}catch(e){}}
 
@@ -24,7 +24,17 @@ function audioStart(){
   if(AU.started)return;
   const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
   let ctx;try{ctx=new AC()}catch(e){return}
-  AU.ctx=ctx;AU.started=true;
+  AU.started=true;audioGraph(ctx);
+  // 環境音：風、海浪、雨
+  AU.wind=loopNoise('bandpass',500,.9);AU.sea=loopNoise('lowpass',420,.7);AU.rain=loopNoise('highpass',2600,.5);
+  applyVolumes();
+  AU.nextBeat=ctx.currentTime+.2;
+  AU.timer=setInterval(schedule,90);
+  document.addEventListener('visibilitychange',()=>{if(!AU.ctx)return;if(document.hidden)AU.ctx.suspend();else AU.ctx.resume()});
+}
+// 混音台：壓縮器、音樂／音效／環境音三軌、殘響與迴聲（離線試聽也用同一套）
+function audioGraph(ctx){
+  AU.ctx=ctx;
   AU.master=ctx.createGain();AU.master.connect(ctx.destination);
   const comp=ctx.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=3;comp.connect(AU.master);
   AU.music=ctx.createGain();AU.sfx=ctx.createGain();AU.amb=ctx.createGain();
@@ -35,12 +45,6 @@ function audioStart(){
   AU.delay=ctx.createDelay(1);AU.delay.delayTime.value=.42;const fb=ctx.createGain();fb.gain.value=.32;const dl=ctx.createBiquadFilter();dl.type='lowpass';dl.frequency.value=2200;
   AU.delay.connect(dl);dl.connect(fb);fb.connect(AU.delay);dl.connect(AU.rev);const dg=ctx.createGain();dg.gain.value=.4;dl.connect(dg);dg.connect(AU.music);
   AU.noise=noiseBuf(ctx,4);
-  // 環境音：風、海浪、雨
-  AU.wind=loopNoise('bandpass',500,.9);AU.sea=loopNoise('lowpass',420,.7);AU.rain=loopNoise('highpass',2600,.5);
-  applyVolumes();
-  AU.nextBeat=ctx.currentTime+.2;
-  AU.timer=setInterval(schedule,90);
-  document.addEventListener('visibilitychange',()=>{if(!AU.ctx)return;if(document.hidden)AU.ctx.suspend();else AU.ctx.resume()});
 }
 function impulse(ctx,sec,decay){const n=ctx.sampleRate*sec,b=ctx.createBuffer(2,n,ctx.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,decay)}return b}
 function noiseBuf(ctx,sec){const n=ctx.sampleRate*sec,b=ctx.createBuffer(1,n,ctx.sampleRate),d=b.getChannelData(0);let last=0;for(let i=0;i<n;i++){const w=Math.random()*2-1;last=(last+.02*w)/1.02;d[i]=last*3.5*.6+w*.4*.25}return b}
@@ -70,6 +74,8 @@ function voice(freq,t,dur,{type='triangle',gain=.1,attack=.01,release=.3,cutoff=
 }
 function schedule(){
   if(!AU.ctx||AU.ctx.state!=='running')return;
+  if(SETTINGS.musicStyle!=='calm'){grooveSchedule();return}
+  if(AU.nextBeat<AU.ctx.currentTime-.2)AU.nextBeat=AU.ctx.currentTime+.05;
   const M=MOODS[AU.mood]||MOODS.menu,spb=60/M.bpm;
   while(AU.nextBeat<AU.ctx.currentTime+.45){
     const t=AU.nextBeat,b=AU.beat,bar=Math.floor(b/4),ch=M.chords[Math.floor(bar/2)%M.chords.length],cut=600+M.bright*1600;
