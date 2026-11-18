@@ -420,17 +420,25 @@ function showSettings(){
     <button id="setDay" aria-pressed="${SETTINGS.daynight}"><b>日夜循環</b><span>${SETTINGS.daynight?'約 2.5 分鐘一輪，夜晚亮燈':'固定白天'}</span></button>
     <button id="setCine" aria-pressed="${SETTINGS.cine!==false}"><b>事件動畫</b><span>${SETTINGS.cine!==false?'回合結束先在地圖上演出事件與結果':'直接顯示事件與季報'}</span></button>
   </div>
+  <h4>背景音樂</h4>
+  <div class="sbx-tg">
+    <button data-mstyle="upbeat" aria-pressed="${SETTINGS.musicStyle!=='calm'}"><b>輕快</b><span>有鼓、貝斯與旋律的完整曲子，依季節輪播 9 首</span></button>
+    <button data-mstyle="calm" aria-pressed="${SETTINGS.musicStyle==='calm'}"><b>悠閒</b><span>柔和的氛圍音樂，隨季節即興</span></button>
+  </div>
+  <div class="set-row np"><span>正在播放：<b id="npName">${nowPlaying()}</b></span>${SETTINGS.musicStyle!=='calm'?'<button class="btn sm" id="npNext">下一首 ›</button>':''}</div>
   <h4>畫面風格</h4>
   <div class="sbx-tg">
     <button data-style="cartoon" aria-pressed="${CART()}"><b>卡通</b><span>粗輪廓線、鮮豔色彩、建物彈跳出現</span></button>
     <button data-style="detail" aria-pressed="${!CART()}"><b>精緻</b><span>細膩光影與紋理、柔和色調</span></button>
   </div>
-  <p style="font-size:12.5px">背景音樂會隨季節換情緒，颱風來時轉為緊張的版本；音樂與音效都是即時合成，不需要下載音檔。</p>`;
+  <p style="font-size:12.5px">背景音樂會隨季節換曲子，颱風來時轉為緊張的版本；音樂與音效都是即時合成，不需要下載音檔。</p>`;
   const c=openModal(html,'',true);
   $('#mX').onclick=closeModal;
   for(const k of['music','sfx','amb']){const r=$('#set-'+k);r.oninput=()=>{SETTINGS[k]=r.value/100;r.nextElementSibling.textContent=r.value;applyVolumes();saveSettings()};r.onchange=()=>{if(k==='sfx')sfx('coin')}}
   $('#setMute').onclick=()=>{SETTINGS.mute=!SETTINGS.mute;saveSettings();applyVolumes();soundIcon();showSettings()};
   $('#setDay').onclick=()=>{SETTINGS.daynight=!SETTINGS.daynight;saveSettings();showSettings()};
+  for(const b of c.querySelectorAll('[data-mstyle]'))b.onclick=()=>{SETTINGS.musicStyle=b.dataset.mstyle;saveSettings();showSettings()};
+  if($('#npNext'))$('#npNext').onclick=()=>{musicNext();$('#npName').textContent=nowPlaying()};
   $('#setCine').onclick=()=>{SETTINGS.cine=SETTINGS.cine===false;saveSettings();showSettings()};
   for(const b of c.querySelectorAll('[data-style]'))b.onclick=()=>{if(SETTINGS.style===b.dataset.style)return;SETTINGS.style=b.dataset.style;saveSettings();applyStyle();showSettings()};
 }
