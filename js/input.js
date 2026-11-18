@@ -52,6 +52,7 @@ function centerOnOwned(fit){
   clampCam();
 }
 function onTap(sx,sy){
+  if(CINE.on){cineEnd();return}
   if(modalOpen)return;
   if(tool==='inspect'){
     const o=pickObj(sx,sy);if(o){select({o});sfx('tick');return}

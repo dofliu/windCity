@@ -157,7 +157,7 @@ BOT.apply=function(a){
 // 快速跑完一整關（不錄影）：回傳每季紀錄與結算
 BOT.run=function(levelId,style,seed){
   let a=seed;window.__grand=function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
-  window.toast=()=>{};
+  window.toast=()=>{};window.__noCine=true;
   enterState(newState(levelId));closeModal();
   const log=[];
   for(let turn=0;turn<(LV.turns||32)&&!S.over;turn++){

@@ -78,6 +78,7 @@ function tutUpdate(){
   const st=TUT_STEPS[TUT.i];
   if(TUT.cam){const k=Math.min(1,(performance.now()-TUT.cam.t0)/700),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;cam.x=lerp(TUT.cam.x0,TUT.cam.x1,e);cam.y=lerp(TUT.cam.y0,TUT.cam.y1,e);cam.z=lerp(TUT.cam.z0,TUT.cam.z1,e);if(k>=1)TUT.cam=null}
   const sp=$('#spot'),hint=$('#tapHint'),co=$('#coach');
+  if(CINE.on){co.hidden=sp.hidden=hint.hidden=true;return}co.hidden=false;
   const r=st.final?null:tutRect(st);
   if(r){Object.assign(sp.style,{left:r.x+'px',top:r.y+'px',width:r.w+'px',height:r.h+'px',borderRadius:r.r+'px'});sp.hidden=false;
     hint.hidden=false;hint.style.left=(r.x+r.w/2)+'px';hint.style.top=(r.y+(r.tile?r.h*.2:r.h*.55))+'px';}

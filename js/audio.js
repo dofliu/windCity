@@ -1,7 +1,7 @@
 // 風場大亨 — 音樂、環境音與音效（全部用 Web Audio 即時合成，不需要音檔）
 'use strict';
 const SET_KEY='windcity:settings';
-const SETTINGS={music:.5,sfx:.75,amb:.55,mute:false,daynight:true,style:'cartoon'};
+const SETTINGS={music:.5,sfx:.75,amb:.55,mute:false,daynight:true,style:'cartoon',cine:true};
 try{Object.assign(SETTINGS,JSON.parse(localStorage.getItem(SET_KEY)||'{}'))}catch(e){}
 function saveSettings(){try{localStorage.setItem(SET_KEY,JSON.stringify(SETTINGS))}catch(e){}}
 
@@ -143,6 +143,10 @@ const SFX={
   typhoon:()=>{tone(98,92,1.6,{type:'sawtooth',gain:.12,attack:.3,cutoff:500,rev:.4});tone(147,138,1.6,{type:'sawtooth',gain:.08,attack:.3,cutoff:500});burst(2.2,{type:'bandpass',freq:300,f1:900,gain:.25,q:.6})},
   win:()=>{[60,64,67,72,76,79,84].forEach((n,k)=>tone(midi(n),midi(n),.6,{type:'triangle',gain:.09,t:k*.09,rev:.4}));[72,76,79].forEach(n=>tone(midi(n),midi(n),1.6,{type:'sine',gain:.06,t:.7,rev:.5}))},
   lose:()=>{[64,62,59,55].forEach((n,k)=>tone(midi(n),midi(n),.7,{type:'triangle',gain:.09,t:k*.22,rev:.4}))},
+  thunder:()=>{burst(.08,{type:'highpass',freq:3000,gain:.35});burst(1.8,{freq:420,f1:60,gain:.55,t:.05});tone(70,38,1.4,{type:'sawtooth',gain:.1,cutoff:220,t:.05,rev:.5})},
+  crowd:()=>{for(let k=0;k<7;k++){const f=180+Math.random()*160;tone(f,f*(.85+Math.random()*.3),.35+Math.random()*.3,{type:'sawtooth',gain:.025,cutoff:900,t:k*.12+Math.random()*.08,rev:.3})}burst(1.4,{type:'bandpass',freq:700,gain:.08,q:.7})},
+  chirp:()=>{for(let k=0;k<8;k++){const f=2600+Math.random()*1400;tone(f,f*1.35,.07,{gain:.03,t:k*.11+Math.random()*.05,rev:.2})}},
+  alarm:()=>{for(let k=0;k<3;k++){tone(880,880,.16,{type:'square',gain:.04,cutoff:2500,t:k*.36,rev:.1});tone(660,660,.16,{type:'square',gain:.04,cutoff:2500,t:k*.36+.18,rev:.1})}},
   start:()=>{[67,72,76].forEach((n,k)=>bell(midi(n),k*.1,.08,1))},
 };
 function sfx(name){if(!AU.started||SETTINGS.mute||!SETTINGS.sfx)return;try{SFX[name]&&SFX[name]()}catch(e){}}

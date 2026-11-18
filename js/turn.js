@@ -47,7 +47,7 @@ function forcedEvent(id){
   if(id==='typhoon')return typhoonEvent();
   const p=eventPool().find(x=>x.id===id);
   if(!p||p.ok===false){toast('目前條件不符，無法觸發這個事件','bad');return eventPool().find(x=>x.id==='quiet').mk()}
-  return p.mk();
+  const e=p.mk();e.id=p.id;return e;
 }
 function rollEvent(){
   const se=season(),T=TURBS.filter(o=>o.state!=='build');
@@ -59,24 +59,30 @@ function rollEvent(){
   if(T.length&&GR()<Math.min(.95,se.typhoon*MOD('typhoon')))return typhoonEvent();
   const pool=eventPool().filter(p=>p.ok!==false);
   let tot=pool.reduce((s,p)=>s+p.w,0),r=GR()*tot;
-  for(const p of pool){r-=p.w;if(r<=0)return p.mk()}
-  return pool[pool.length-1].mk();
+  for(const p of pool){r-=p.w;if(r<=0){const e=p.mk();e.id=p.id;return e}}
+  const last=pool[pool.length-1],e=last.mk();e.id=last.id;return e;
 }
 
 // ================= turn =================
 function endTurn(){
-  if(modalOpen)return;
+  if(modalOpen||CINE.on)return;
   if(S.over){showFinal();return}
   cancelPreview();sfx('whoosh');
   const ev=rollEvent();
   if(ev.storm)weatherFx='storm';
-  if(ev.choices)showEvent(ev);
-  else{if(ev.now)ev.now();runTurn(ev)}
+  const go=()=>{if(ev.choices)showEvent(ev);else{if(ev.now)ev.now();runTurn(ev)}};
+  // 先在地圖上演出事件，再跳出選擇或結算
+  if(ev.id&&ev.id!=='quiet'){ev._cined=true;playCine('pre',{ev},go)}else go();
 }
-function runTurn(ev){const rep=processTurn(ev);showReport(rep)}
+function runTurn(ev){
+  const rep=processTurn(ev);
+  // 結算後先在地圖上演出結果（受損、完工、收入），再顯示季報
+  if(rep.hitIds.length||rep.builtIds.length||(ev.id&&POST_CINE.has(ev.id)))playCine('post',{ev,rep},()=>showReport(rep));
+  else showReport(rep);
+}
 function processTurn(ev){
   const se=season(),R=GR;
-  const rep={label:dateLabel(S.turn),se,ev:{title:ev.title,desc:ev.desc,icon:ev.icon,tone:ev.tone,picked:ev.picked,note:ev.note||''},inc:[],built:[],builtIds:[],energy:0,ideal:0,mwAct:0,upW:0,wakeW:0,vW:0,cost:{om:0,crew:0,fac:0,repair:0,event:0,interest:0}};
+  const rep={label:dateLabel(S.turn),se,ev:{title:ev.title,desc:ev.desc,icon:ev.icon,tone:ev.tone,picked:ev.picked,note:ev.note||''},inc:[],built:[],builtIds:[],hitIds:[],energy:0,ideal:0,mwAct:0,upW:0,wakeW:0,vW:0,cost:{om:0,crew:0,fac:0,repair:0,event:0,interest:0}};
   const wm=se.wind*(.93+R()*.14)*(ev.windMul||1);
   const flows=se.mix?[[NE,.5],[SW,.5]]:[[se.dir,1]];
   let free=S.crews,vfree=S.vessels;
@@ -121,10 +127,10 @@ function processTurn(ev){
     if(o.state==='run'&&ev.typhoon){
       if(ev.typhoon==='safe')ext=.12*act;
       const pd=ev.typhoon==='safe'?.04:(m.offshore?.32:.22);
-      if(R()<pd){o.health=Math.max(5,o.health-(28+R()*16));o.state='fault';o.fault=5;o.repairing=false;up*=.5;newF=true;rep.inc.push({tone:'bad',txt:`${tname(o)} 颱風造成葉片損傷`})}
+      if(R()<pd){o.health=Math.max(5,o.health-(28+R()*16));o.state='fault';o.fault=5;o.repairing=false;up*=.5;newF=true;rep.hitIds.push(o.id);rep.inc.push({tone:'bad',txt:`${tname(o)} 颱風造成葉片損傷`})}
     }
-    if(o.state==='run'&&ev.strike===o.id){o.state='fault';o.fault=6;o.repairing=false;up-=act*.3;newF=true;rep.inc.push({tone:'bad',txt:`${tname(o)} 雷擊，葉尖受損`})}
-    if(o.state==='run'&&!newF&&R()<faultProb(o)){o.fault=pickFault();o.state='fault';o.repairing=false;up-=act*(.2+R()*.45);rep.inc.push({tone:'bad',txt:`${tname(o)} ${FAULTS[o.fault].n}`})}
+    if(o.state==='run'&&ev.strike===o.id){o.state='fault';o.fault=6;o.repairing=false;up-=act*.3;newF=true;rep.hitIds.push(o.id);rep.inc.push({tone:'bad',txt:`${tname(o)} 雷擊，葉尖受損`})}
+    if(o.state==='run'&&!newF&&R()<faultProb(o)){o.fault=pickFault();o.state='fault';o.repairing=false;rep.hitIds.push(o.id);up-=act*(.2+R()*.45);rep.inc.push({tone:'bad',txt:`${tname(o)} ${FAULTS[o.fault].n}`})}
     up=clamp(up,0,act);
     const v=tile(o.i,o.j).wind*wm*shear(m),c=cf(o.model,v);
     let wk=0;for(const[f,w]of flows)wk+=w*wakeLoss(o.i,o.j,f,o,false);

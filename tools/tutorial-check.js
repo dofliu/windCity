@@ -9,6 +9,7 @@ const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.messag
 await p.goto('file://'+path.resolve(__dirname,'..','index.html'));await p.waitForTimeout(1500);
 const log=[];
 for(let guard=0;guard<40;guard++){
+  if(await p.evaluate(()=>CINE.on)){await p.waitForFunction(()=>!CINE.on,null,{timeout:10000});await p.waitForTimeout(700)} // 結算動畫播完
   const st=await p.evaluate(()=>({on:TUT.on,i:TUT.i,t:TUT_STEPS[TUT.i]&&TUT_STEPS[TUT.i].t,final:!!(TUT_STEPS[TUT.i]||{}).final,btn:!!document.querySelector('#tutNext'),spot:!$('#spot').hidden&&$('#spot').getBoundingClientRect()}));
   if(!st.on){log.push('tutorial not running');break}
   log.push(`${st.i+1} ${st.t}`);
