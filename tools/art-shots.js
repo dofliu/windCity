@@ -4,6 +4,7 @@ const out=path.resolve(__dirname,'out');fs.mkdirSync(out,{recursive:true});
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1280,height:800}});
 const errs=[];p.on('pageerror',e=>errs.push(e.message));
 await p.goto('file://'+path.resolve(__dirname,'..','index.html'));await p.waitForTimeout(800);
+await p.evaluate(()=>{window.__noCine=true});
 await p.evaluate(()=>{window.__wft.adminSave(Object.fromEntries(LEVELS.map(l=>[l.id,'open'])));SETTINGS.daynight=false});
 const shot=async(lv,turn,i,j,z,name,setup)=>{
   await p.evaluate(([lv,turn,setup])=>{window.__wft.startLevel(lv,true);closeModal();S.turn=turn;buildCache();rebuildDrawables();if(setup)eval(setup);updateHUD()},[lv,turn,setup]);

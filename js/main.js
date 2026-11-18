@@ -14,7 +14,7 @@ function loadSave(id){
 }
 // 把一個狀態放上舞台
 function enterState(st){
-  tutStop();
+  tutStop();cineAbort();
   setLevel(st.level);S=st;
   selected=null;preview=null;tool='inspect';cat='inspect';weatherFx='clear';
   for(const b of document.querySelectorAll('.cat'))b.setAttribute('aria-pressed',String(b.dataset.cat==='inspect'));
@@ -41,7 +41,7 @@ function wire(){
   $('#zIn').onclick=()=>zoomBy(1.25);$('#zOut').onclick=()=>zoomBy(.8);$('#zHome').onclick=()=>centerOnOwned(true);
   $('#kpiHead').onclick=()=>{kpiCollapsed=!kpiCollapsed;$('#kpi').classList.toggle('collapsed',kpiCollapsed);if(!kpiCollapsed)drawSpark()};
   window.addEventListener('resize',()=>{resize();drawSpark()});
-  window.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modalOpen)return;if(preview)cancelPreview();else setCat('inspect')}});
+  window.addEventListener('keydown',e=>{if(CINE.on&&(e.key==='Escape'||e.key===' ')){cineEnd();return}if(e.key==='Escape'){if(modalOpen)return;if(preview)cancelPreview();else setCat('inspect')}});
 }
 function start(data){
   resize();initSprites();wire();loadProgress();adminInit();audioArm();

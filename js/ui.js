@@ -249,7 +249,7 @@ function openModal(html,cls,dismiss){
 }
 function closeModal(){$('#modal').hidden=true;modalOpen=false}
 function showEvent(ev){
-  sfx(ev.storm?'typhoon':'event');
+  if(!ev._cined)sfx(ev.storm?'typhoon':'event');
   const c=openModal(`<div class="evhead"><div class="evicon tone-${ev.tone}">${ic(ev.icon)}</div><div><div class="sub">${dateLabel(S.turn)}・季中事件</div><h2>${ev.title}</h2></div></div><p>${ev.desc}</p><div class="choices">${ev.choices.map((x,k)=>`<button class="choice" data-k="${k}"><b>${x.label}</b><span>${x.sub}</span></button>`).join('')}</div>`,'',false);
   for(const b of c.querySelectorAll('.choice'))b.onclick=()=>{const x=ev.choices[+b.dataset.k];x.apply(ev);ev.picked=x.label;closeModal();runTurn(ev)};
 }
@@ -418,6 +418,7 @@ function showSettings(){
   <div class="sbx-tg" style="margin-top:12px">
     <button id="setMute" aria-pressed="${SETTINGS.mute}"><b>全部靜音</b><span>${SETTINGS.mute?'目前靜音':'目前有聲音'}</span></button>
     <button id="setDay" aria-pressed="${SETTINGS.daynight}"><b>日夜循環</b><span>${SETTINGS.daynight?'約 2.5 分鐘一輪，夜晚亮燈':'固定白天'}</span></button>
+    <button id="setCine" aria-pressed="${SETTINGS.cine!==false}"><b>事件動畫</b><span>${SETTINGS.cine!==false?'回合結束先在地圖上演出事件與結果':'直接顯示事件與季報'}</span></button>
   </div>
   <h4>畫面風格</h4>
   <div class="sbx-tg">
@@ -430,6 +431,7 @@ function showSettings(){
   for(const k of['music','sfx','amb']){const r=$('#set-'+k);r.oninput=()=>{SETTINGS[k]=r.value/100;r.nextElementSibling.textContent=r.value;applyVolumes();saveSettings()};r.onchange=()=>{if(k==='sfx')sfx('coin')}}
   $('#setMute').onclick=()=>{SETTINGS.mute=!SETTINGS.mute;saveSettings();applyVolumes();soundIcon();showSettings()};
   $('#setDay').onclick=()=>{SETTINGS.daynight=!SETTINGS.daynight;saveSettings();showSettings()};
+  $('#setCine').onclick=()=>{SETTINGS.cine=SETTINGS.cine===false;saveSettings();showSettings()};
   for(const b of c.querySelectorAll('[data-style]'))b.onclick=()=>{if(SETTINGS.style===b.dataset.style)return;SETTINGS.style=b.dataset.style;saveSettings();applyStyle();showSettings()};
 }
 // 切換畫面風格：重畫精靈圖、縮圖、地形快取，並讓地圖重新彈出一次

@@ -149,7 +149,7 @@ function drawParts(c){
   for(const q of FX.parts){
     const k=q.life/q.max,a=1-k;
     if(q.kind==='dust'){c.fillStyle=`rgba(${q.col},${.45*a})`;c.beginPath();c.arc(q.x,q.y,q.r+q.grow*k,0,6.283);c.fill()}
-    else if(q.kind==='ring'){c.strokeStyle=`rgba(255,214,90,${a*.9})`;c.lineWidth=2.4*a+.4;c.beginPath();c.ellipse(q.x,q.y,10+44*k,5+22*k,0,0,6.283);c.stroke()}
+    else if(q.kind==='ring'){c.strokeStyle=q.red?`rgba(255,80,60,${a*.9})`:`rgba(255,214,90,${a*.9})`;c.lineWidth=2.4*a+.4;c.beginPath();c.ellipse(q.x,q.y,10+44*k,5+22*k,0,0,6.283);c.stroke()}
     else{c.save();c.globalCompositeOperation='lighter';c.fillStyle=`rgba(${q.col},${a})`;c.translate(q.x,q.y);c.rotate(q.life*4);c.fillRect(-q.r,-q.r*.3,q.r*2,q.r*.6);c.fillRect(-q.r*.3,-q.r,q.r*.6,q.r*2);c.restore()}
   }
 }

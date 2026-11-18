@@ -4,6 +4,7 @@ const out=path.resolve(__dirname,'out');fs.mkdirSync(out,{recursive:true});
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1280,height:800}});
 const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});
 await p.goto('file://'+path.resolve(__dirname,'..','index.html')+'#admin');await p.waitForTimeout(1000);
+await p.evaluate(()=>{window.__noCine=true});
 // 管理介面（第一次開啟會先進新手導引，這裡直接打開關卡選單）
 await p.evaluate(()=>window.__wft.showLevels());await p.waitForTimeout(300);
 await p.click('#lvAdm');await p.waitForTimeout(300);await p.screenshot({path:out+'/admin.png'});
