@@ -202,6 +202,7 @@ function rebuildDrawables(){
   }
   for(const o of S.objs)drawList.push({d:o.i+o.j+1.02,k:'obj',o});
   drawList.sort((a,b)=>a.d-b.d);
+  fxRebuild();
 }
 
 // ---------- turbines & facilities ----------
@@ -387,6 +388,7 @@ function update(dt){
   if(!clouds.length)for(let k=0;k<4;k++)clouds.push({x:VR()*N,y:VR()*N,r:2.5+VR()*3});
   for(const c of clouds){c.x+=f[0]*.25*dt;c.y+=f[1]*.25*dt;if(c.x<-6||c.y<-6||c.x>N+6||c.y>N+6){c.x=VR()*N-f[0]*N*.6;c.y=VR()*N-f[1]*N*.6;}}
   for(let k=floats.length-1;k>=0;k--){floats[k].t+=dt;if(floats[k].t>1.8)floats.splice(k,1)}
+  fxUpdate(dt);audioUpdate();
 }
 function spawnWind(init){
   const f=flowNow();
@@ -397,9 +399,7 @@ function spawnWind(init){
 function render(){
   const c=ctx,storm=weatherFx==='storm';
   c.setTransform(DPR,0,0,DPR,0,0);
-  const bg=c.createLinearGradient(0,0,0,H);
-  if(storm){bg.addColorStop(0,'#7f939a');bg.addColorStop(1,'#4e626b')}else{bg.addColorStop(0,'#d3ecf0');bg.addColorStop(.55,'#a9d3dc');bg.addColorStop(1,'#7fb1bf')}
-  c.fillStyle=bg;c.fillRect(0,0,W,H);
+  drawSky(c);
   c.setTransform(DPR*cam.z,0,0,DPR*cam.z,DPR*(W/2-cam.x*cam.z),DPR*(H/2-cam.y*cam.z));
   const sy=N*TH/2+40,rg=c.createRadialGradient(0,sy,10,0,sy,N*TW*.62);rg.addColorStop(0,'rgba(20,60,75,.32)');rg.addColorStop(1,'rgba(20,60,75,0)');
   c.save();c.translate(0,sy);c.scale(1,.55);c.translate(0,-sy);c.fillStyle=rg;c.fillRect(-N*TW,sy-N*TW,N*TW*2,N*TW*2);c.restore();
@@ -407,9 +407,14 @@ function render(){
   drawWaterFx(c);
   drawCloudShadows(c);
   drawOverlays(c);
+  drawCars(c);
+  drawBoats(c);
   drawObjects(c);
   drawGhost(c);
   drawWindStreaks(c);
+  drawBirds(c);
+  drawParts(c);
+  drawNight(c);
   drawBadges(c);
   drawFloats(c);
   c.setTransform(DPR,0,0,DPR,0,0);

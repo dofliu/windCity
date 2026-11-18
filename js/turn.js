@@ -66,7 +66,7 @@ function rollEvent(){
 function endTurn(){
   if(modalOpen)return;
   if(S.over){showFinal();return}
-  cancelPreview();
+  cancelPreview();sfx('whoosh');
   const ev=rollEvent();
   if(ev.storm)weatherFx='storm';
   if(ev.choices)showEvent(ev);
@@ -75,7 +75,7 @@ function endTurn(){
 function runTurn(ev){const rep=processTurn(ev);showReport(rep)}
 function processTurn(ev){
   const se=season(),R=GR;
-  const rep={label:dateLabel(S.turn),se,ev:{title:ev.title,desc:ev.desc,icon:ev.icon,tone:ev.tone,picked:ev.picked,note:ev.note||''},inc:[],built:[],energy:0,ideal:0,mwAct:0,upW:0,wakeW:0,vW:0,cost:{om:0,crew:0,fac:0,repair:0,event:0,interest:0}};
+  const rep={label:dateLabel(S.turn),se,ev:{title:ev.title,desc:ev.desc,icon:ev.icon,tone:ev.tone,picked:ev.picked,note:ev.note||''},inc:[],built:[],builtIds:[],energy:0,ideal:0,mwAct:0,upW:0,wakeW:0,vW:0,cost:{om:0,crew:0,fac:0,repair:0,event:0,interest:0}};
   const wm=se.wind*(.93+R()*.14)*(ev.windMul||1);
   const flows=se.mix?[[NE,.5],[SW,.5]]:[[se.dir,1]];
   let free=S.crews,vfree=S.vessels;
@@ -88,7 +88,7 @@ function processTurn(ev){
     if(ev.delay===o.id){rep.inc.push({tone:'warn',txt:`${tname(o)} 吊車延誤，工期順延一季`});continue}
     if(off&&!seaOK()){rep.inc.push({tone:'warn',txt:`${tname(o)} 海況不佳，工作船無法出海施工`});continue}
     o.prog++;
-    if(o.prog>=MODELS[o.model].build){o.state='run';o.fresh=true;o.health=100;rep.built.push(`${tname(o)}（${MODELS[o.model].short}）`)}
+    if(o.prog>=MODELS[o.model].build){o.state='run';o.fresh=true;o.health=100;rep.built.push(`${tname(o)}（${MODELS[o.model].short}）`);rep.builtIds.push(o.id)}
   }
   free=Math.max(0,free);vfree=Math.max(0,vfree);
   const faults=TURBS.filter(o=>o.state==='fault').sort((a,b)=>MODELS[b.model].mw-MODELS[a.model].mw);

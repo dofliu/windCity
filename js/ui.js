@@ -1,7 +1,7 @@
 // 風場大亨 — HUD、面板、彈窗
 'use strict';
 // ================= UI =================
-function toast(msg,tone){const d=document.createElement('div');d.className='toast '+(tone||'');d.textContent=msg;$('#toasts').appendChild(d);setTimeout(()=>d.remove(),2600);while($('#toasts').children.length>3)$('#toasts').firstChild.remove()}
+function toast(msg,tone){if(tone==='bad')sfx('error');const d=document.createElement('div');d.className='toast '+(tone||'');d.textContent=msg;$('#toasts').appendChild(d);setTimeout(()=>d.remove(),2600);while($('#toasts').children.length>3)$('#toasts').firstChild.remove()}
 const ic=id=>`<svg class="ic"><use href="#${id}"/></svg>`;
 function costHTML(cost){
   if(!cost)return '';
@@ -16,7 +16,7 @@ function updateHUD(){
   const se=season();
   $('#date').innerHTML=`${dateLabel(S.turn)}<span>${LV.no?`第 ${LV.no} 關・`:''}${LV.name}・${se.name}季</span>`;
   const sb=SBX();
-  setChip('cash',sb?'∞':`${fmt(S.cash,1)}<small>M</small>`,!sb&&S.cash<0);
+  if(sb)setChip('cash','∞',false);else{rollCash(S.cash,v=>`${fmt(v,1)}<small>M</small>`);$('#c-cash').classList.toggle('neg',S.cash<0)}
   setChip('steel',sb?'∞':`${Math.round(S.steel)}<small>/${steelCap()} t</small>`);
   setChip('blade',sb?'∞':`${S.blades}<small>/${bladeCap()} 組</small>`);
   setChip('crew',sb?'∞':`${S.crews-crewBusy()}<small>/${S.crews} 可用</small>`,!sb&&S.crews-crewBusy()<=0);
@@ -247,6 +247,7 @@ function openModal(html,cls,dismiss){
 }
 function closeModal(){$('#modal').hidden=true;modalOpen=false}
 function showEvent(ev){
+  sfx(ev.storm?'typhoon':'event');
   const c=openModal(`<div class="evhead"><div class="evicon tone-${ev.tone}">${ic(ev.icon)}</div><div><div class="sub">${dateLabel(S.turn)}・季中事件</div><h2>${ev.title}</h2></div></div><p>${ev.desc}</p><div class="choices">${ev.choices.map((x,k)=>`<button class="choice" data-k="${k}"><b>${x.label}</b><span>${x.sub}</span></button>`).join('')}</div>`,'',false);
   for(const b of c.querySelectorAll('.choice'))b.onclick=()=>{const x=ev.choices[+b.dataset.k];x.apply(ev);ev.picked=x.label;closeModal();runTurn(ev)};
 }
@@ -279,9 +280,9 @@ function showReport(rep){
   ${rep.built.length||rep.inc.length?`<h4>現場紀錄</h4><ul class="inc">${rep.built.map(b=>`<li class="good">${b} 完工併網</li>`).join('')}${rep.inc.map(x=>`<li class="${x.tone}">${x.txt}</li>`).join('')}</ul>`:''}
   <p style="font-size:12.5px">民眾支持度 ${rep.dSup>=0?'+':''}${fmt(rep.dSup,1)}，目前 ${Math.round(S.support)}%。</p>
   <div class="mfoot"><button class="btn pri" id="rGo">${S.over?'查看結算':`進入 ${next}`} ${ic('i-arrow')}</button></div>`;
-  const c=openModal(html,'wide',false);
+  const c=openModal(html,'wide',false);sfx('report');
   drawReportChart();
-  $('#rGo').onclick=()=>{closeModal();weatherFx='clear';if(S.over)showFinal()};
+  $('#rGo').onclick=()=>{closeModal();weatherFx='clear';if(S.over)showFinal();else fxAfterReport(rep)};
 }
 function drawReportChart(){
   const cvs=$('#rchart');if(!cvs)return;const r=cvs.getBoundingClientRect(),d=Math.min(2,devicePixelRatio||1);cvs.width=r.width*d;cvs.height=r.height*d;const c=cvs.getContext('2d');c.scale(d,d);
@@ -329,10 +330,10 @@ function showMarket(){
 }
 function market(a){
   const pay=(m)=>{if(S.cash-m<-credit()){toast('資金與信用額度不足','bad');return false}S.cash-=m;return true};
-  if(a.startsWith('bs')){const n=+a.slice(2);if(S.steel+n>steelCap()){toast('倉庫放不下，請蓋倉儲中心','bad');return}if(pay(S.price.steel*n)){S.steel+=n;toast(`購入鋼材 ${n} t`,'good')}}
+  if(a.startsWith('bs')){const n=+a.slice(2);if(S.steel+n>steelCap()){toast('倉庫放不下，請蓋倉儲中心','bad');return}if(pay(S.price.steel*n)){S.steel+=n;toast(`購入鋼材 ${n} t`,'good');sfx('coin')}}
   else if(a==='ss50'){if(S.steel<50){toast('鋼材不足 50 t','bad');return}S.steel-=50;S.cash+=S.price.steel*50*.8}
-  else if(a.startsWith('bb')){const n=+a.slice(2);if(S.blades+n>bladeCap()){toast('倉庫放不下，請蓋倉儲中心','bad');return}if(pay(S.price.blade*n)){S.blades+=n;toast(`購入葉片 ${n} 組`,'good')}}
-  else if(a==='hire'){if(pay(CREW_HIRE)){S.crews++;toast('新工班報到','good')}}
+  else if(a.startsWith('bb')){const n=+a.slice(2);if(S.blades+n>bladeCap()){toast('倉庫放不下，請蓋倉儲中心','bad');return}if(pay(S.price.blade*n)){S.blades+=n;toast(`購入葉片 ${n} 組`,'good');sfx('coin')}}
+  else if(a==='hire'){if(pay(CREW_HIRE)){S.crews++;toast('新工班報到','good');sfx('coin')}}
   else if(a==='fire'){if(S.crews>Math.max(1,crewBusy()))S.crews--}
   else if(a==='vhire'){if(S.vessels>=vesselCap()){toast(vesselCap()?'港口泊位已滿，再蓋一座港口':'要先蓋運維港口才能租船','bad');return}if(pay(VESSEL_HIRE)){S.vessels++;toast('工作船進港','good')}}
   else if(a==='vfire'){if(S.vessels>vesselBusy())S.vessels--}
@@ -374,6 +375,7 @@ function showMenu(){
   <div class="choices">
     <button class="choice" id="mLv"><b>關卡選單</b><span>進度已自動儲存，可以隨時回來繼續</span></button>
     <button class="choice" id="mHelp"><b>本關說明</b><span>目標、重點與操作提示</span></button>
+    <button class="choice" id="mSet"><b>設定</b><span>音樂、音效、環境音、日夜循環</span></button>
     <button class="choice" id="mNew"><b>重新開始本關</b><span>目前進度會被覆蓋</span></button>
     ${ADMIN.visible?`<button class="choice" id="mAdm"><b>管理介面</b><span>設定開放哪些關卡</span></button>`:''}
   </div><div id="mConf"></div>`;
@@ -381,11 +383,12 @@ function showMenu(){
   $('#mX').onclick=closeModal;
   $('#mLv').onclick=()=>{closeModal();showLevels()};
   $('#mHelp').onclick=()=>{closeModal();showBrief(false)};
+  $('#mSet').onclick=()=>showSettings();
   const ma=$('#mAdm');if(ma)ma.onclick=()=>{closeModal();showAdmin()};
   $('#mNew').onclick=()=>{$('#mConf').innerHTML=`<p>確定要放棄目前進度嗎？</p><div class="mfoot"><button class="btn" id="cN">取消</button><button class="btn pri" id="cY">確定重新開始</button></div>`;$('#cN').onclick=()=>{$('#mConf').innerHTML=''};$('#cY').onclick=()=>{closeModal();startLevel(LV.id,true)}};
 }
 function showFinal(){
-  const {grade,stars}=gradeOf();
+  const {grade,stars}=gradeOf();sfx(stars>=2?'win':'lose');
   const tot=S.hist.reduce((s,h)=>s+h.e,0);
   const nxt=LEVELS.find(l=>l.no===LV.no+1);
   const nextOpen=nxt&&levelOpen(nxt);
@@ -399,4 +402,23 @@ function showFinal(){
   $('#fMap').onclick=closeModal;$('#fRe').onclick=()=>{closeModal();startLevel(LV.id,true)};
   const fn=$('#fNext');if(fn)fn.onclick=()=>{closeModal();startLevel(nxt.id)};
   const fl=$('#fLv');if(fl)fl.onclick=()=>{closeModal();showLevels()};
+}
+// ---- 設定：音樂、音效、環境音、日夜 ----
+function soundIcon(){const b=$('#bSound');if(!b)return;b.innerHTML=`${ic(SETTINGS.mute?'i-mute':'i-sound')}${SETTINGS.mute?'靜音':'聲音'}`;b.setAttribute('aria-pressed',String(!SETTINGS.mute))}
+function showSettings(){
+  audioStart();
+  const sl=(k,label)=>`<div class="set-row"><label for="set-${k}">${label}</label><input type="range" id="set-${k}" min="0" max="100" value="${Math.round(SETTINGS[k]*100)}"><output>${Math.round(SETTINGS[k]*100)}</output></div>`;
+  const html=`<div class="evhead"><div class="evicon tone-neutral">${ic('i-sound')}</div><div><div class="sub">偏好設定・存在這個瀏覽器</div><h2>設定</h2></div><button class="xbtn" id="mX" style="align-self:flex-start">${ic('i-x')}</button></div>
+  <h4>聲音</h4>
+  ${sl('music','背景音樂')}${sl('sfx','音效')}${sl('amb','環境音（風、海浪、雨）')}
+  <div class="sbx-tg" style="margin-top:12px">
+    <button id="setMute" aria-pressed="${SETTINGS.mute}"><b>全部靜音</b><span>${SETTINGS.mute?'目前靜音':'目前有聲音'}</span></button>
+    <button id="setDay" aria-pressed="${SETTINGS.daynight}"><b>日夜循環</b><span>${SETTINGS.daynight?'約 2.5 分鐘一輪，夜晚亮燈':'固定白天'}</span></button>
+  </div>
+  <p style="font-size:12.5px">背景音樂會隨季節換情緒，颱風來時轉為緊張的版本；音樂與音效都是即時合成，不需要下載音檔。</p>`;
+  const c=openModal(html,'',true);
+  $('#mX').onclick=closeModal;
+  for(const k of['music','sfx','amb']){const r=$('#set-'+k);r.oninput=()=>{SETTINGS[k]=r.value/100;r.nextElementSibling.textContent=r.value;applyVolumes();saveSettings()};r.onchange=()=>{if(k==='sfx')sfx('coin')}}
+  $('#setMute').onclick=()=>{SETTINGS.mute=!SETTINGS.mute;saveSettings();applyVolumes();soundIcon();showSettings()};
+  $('#setDay').onclick=()=>{SETTINGS.daynight=!SETTINGS.daynight;saveSettings();showSettings()};
 }

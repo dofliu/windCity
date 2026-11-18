@@ -54,7 +54,7 @@ function centerOnOwned(fit){
 function onTap(sx,sy){
   if(modalOpen)return;
   if(tool==='inspect'){
-    const o=pickObj(sx,sy);if(o){select({o});return}
+    const o=pickObj(sx,sy);if(o){select({o});sfx('tick');return}
     const t=pickTile(sx,sy);if(t){const ob=objOf(t);select(ob?{o:ob}:{t})}else closeInspector();
     return;
   }

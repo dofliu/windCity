@@ -202,6 +202,7 @@ function build(tl,t,quiet){
     else if(!quiet)toast(tl==='osub'?`海上變電站完工，含海纜 ${fmt(cableCost(t.i,t.j),1)}M`:`${FAC[tl].name}完工`,'good');
   }
   if(quiet)return true;
+  sfx(tl==='road'?'road':'build');fxDust(t.i,t.j,elev(t),false);
   if(!SBX())floatText(t.i+.5,t.j+.5,elev(t),`−${fmt(c.cost.cash,c.cost.cash<1?1:0)}M`,'#ffd36b');
   reindex();rebuildDrawables();updateHUD();save();
   return true;
@@ -216,17 +217,18 @@ function doBulldoze(t){
     if(S.cash-1.5<-credit()){toast('資金不足','bad');return}
     if(!SBX())S.cash-=1.5;t.tree=0;if(t.t==='forest')t.t='grass';if(!SBX())S.support=Math.max(0,S.support-.3);buildCache();if(!SBX())floatText(t.i+.5,t.j+.5,elev(t),'−1.5M','#ffd36b');
   }else if(b.road){t.road=false;buildCache()}
+  sfx('bulldoze');fxDust(t.i,t.j,elev(t),true);
   reindex();rebuildDrawables();updateHUD();save();
 }
 function buyParcel(p){
   const c=parcelPrice(p);if(S.cash-c<-credit()){toast('資金與信用額度不足','bad');return}
   S.cash-=c;p.owned=true;surveyParcel(p);toast(`取得地塊 ${parcelName(p)}，完成風況初勘`,'good');
-  const cx=p.px*PS+PS/2,cy=p.py*PS+PS/2;floatText(cx,cy,2,`−${c}M`,'#ffd36b');
+  const cx=p.px*PS+PS/2,cy=p.py*PS+PS/2;floatText(cx,cy,2,`−${c}M`,'#ffd36b');sfx('coin');fxSparkle(cx-.5,cy-.5,1,0);
   reindex();updateHUD();save();
 }
 function research(k){
   const c=techCost(k);if(S.tech[k])return;
   if(S.cash-c<-credit()){toast('資金與信用額度不足','bad');return}
   S.cash-=c;S.tech[k]=true;if(S.flags.techDisc)S.flags.techDisc=0;
-  toast(`研發完成：${TECH[k].name}`,'good');updateHUD();renderTray();save();
+  toast(`研發完成：${TECH[k].name}`,'good');sfx('research');updateHUD();renderTray();save();
 }
