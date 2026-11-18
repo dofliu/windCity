@@ -377,7 +377,8 @@ function showMenu(){
   <div class="choices">
     <button class="choice" id="mLv"><b>關卡選單</b><span>進度已自動儲存，可以隨時回來繼續</span></button>
     <button class="choice" id="mHelp"><b>本關說明</b><span>目標、重點與操作提示</span></button>
-    <button class="choice" id="mSet"><b>設定</b><span>音樂、音效、環境音、日夜循環</span></button>
+    <button class="choice" id="mSet"><b>設定</b><span>音樂、音效、環境音、日夜循環、畫面風格</span></button>
+    <button class="choice" id="mTut"><b>重新播放新手導引</b><span>一步一步蓋好第一部風機</span></button>
     <button class="choice" id="mNew"><b>重新開始本關</b><span>目前進度會被覆蓋</span></button>
     ${ADMIN.visible?`<button class="choice" id="mAdm"><b>管理介面</b><span>設定開放哪些關卡</span></button>`:''}
   </div><div id="mConf"></div>`;
@@ -386,6 +387,7 @@ function showMenu(){
   $('#mLv').onclick=()=>{closeModal();showLevels()};
   $('#mHelp').onclick=()=>{closeModal();showBrief(false)};
   $('#mSet').onclick=()=>showSettings();
+  $('#mTut').onclick=()=>{closeModal();startLevel('tutorial',true)};
   const ma=$('#mAdm');if(ma)ma.onclick=()=>{closeModal();showAdmin()};
   $('#mNew').onclick=()=>{$('#mConf').innerHTML=`<p>確定要放棄目前進度嗎？</p><div class="mfoot"><button class="btn" id="cN">取消</button><button class="btn pri" id="cY">確定重新開始</button></div>`;$('#cN').onclick=()=>{$('#mConf').innerHTML=''};$('#cY').onclick=()=>{closeModal();startLevel(LV.id,true)}};
 }
