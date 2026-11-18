@@ -18,7 +18,7 @@ function enterState(st){
   selected=null;preview=null;tool='inspect';cat='inspect';weatherFx='clear';
   for(const b of document.querySelectorAll('.cat'))b.setAttribute('aria-pressed',String(b.dataset.cat==='inspect'));
   setOverlay(null);autoOverlay=false;
-  reindex();buildCache();rebuildDrawables();centerOnOwned(true);
+  reindex();buildCache();rebuildDrawables();centerOnOwned(true);INTRO_T=time;
   $('#insp').hidden=true;$('#confirm').hidden=true;$('#tray').hidden=true;$('#tray').dataset.cat='';
   updateHUD();
 }

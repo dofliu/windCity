@@ -1,7 +1,7 @@
 // 風場大亨 — 音樂、環境音與音效（全部用 Web Audio 即時合成，不需要音檔）
 'use strict';
 const SET_KEY='windcity:settings';
-const SETTINGS={music:.5,sfx:.75,amb:.55,mute:false,daynight:true};
+const SETTINGS={music:.5,sfx:.75,amb:.55,mute:false,daynight:true,style:'cartoon'};
 try{Object.assign(SETTINGS,JSON.parse(localStorage.getItem(SET_KEY)||'{}'))}catch(e){}
 function saveSettings(){try{localStorage.setItem(SET_KEY,JSON.stringify(SETTINGS))}catch(e){}}
 

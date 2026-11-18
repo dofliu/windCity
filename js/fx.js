@@ -268,6 +268,13 @@ function drawClouds(c){
   for(const cl of clouds){
     const sp=iso(cl.x,cl.y,1),gx=sp[0]-alt*.42,gy=sp[1]-alt*.2-alt,R=cl.r*TW*.32;
     const k=FX.night>.4?.35:1;
+    if(CART()){ // 卡通：平塗白雲＋描邊＋底部陰影
+      const puffs=[[-.6,.1,.5],[0,-.18,.64],[.6,.05,.5],[-.25,.22,.46],[.3,.25,.46]].map(([dx,dy,r])=>[gx+dx*R*.62,gy+dy*R*.31,r*R*.5]);
+      c.globalAlpha=.62*k;c.fillStyle=OL;for(const[x,y,r]of puffs){c.beginPath();c.ellipse(x,y,r+1.6,r*.66+1.6,0,0,6.283);c.fill()}
+      c.fillStyle='#dfeaf2';for(const[x,y,r]of puffs){c.beginPath();c.ellipse(x,y,r,r*.66,0,0,6.283);c.fill()}
+      c.fillStyle='#ffffff';for(const[x,y,r]of puffs){c.beginPath();c.ellipse(x-r*.12,y-r*.14,r*.86,r*.52,0,0,6.283);c.fill()}
+      c.globalAlpha=1;continue;
+    }
     for(const[dx,dy,r]of[[-.6,.1,.55],[0,-.15,.7],[.6,.05,.55],[-.25,.25,.5],[.3,.28,.5]]){
       const x=gx+dx*R,y=gy+dy*R*.5,rr=r*R,g=c.createRadialGradient(x,y-rr*.3,rr*.1,x,y,rr);
       g.addColorStop(0,`rgba(255,255,255,${.5*k})`);g.addColorStop(.7,`rgba(250,252,255,${.32*k})`);g.addColorStop(1,'rgba(255,255,255,0)');

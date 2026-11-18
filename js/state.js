@@ -185,7 +185,7 @@ function bullInfo(t){
 // ================= actions =================
 function makeTurb(tl,t){
   const instant=SBX()&&S.sbx.instant;
-  const o={id:S.nid++,type:'turb',model:tl,i:t.i,j:t.j,state:instant?'run':'build',prog:instant?MODELS[tl].build:0,health:100,age:0,ang:VR()*6.28,e:0,av:null,wake:0,pm:false,fault:-1};
+  const o={id:S.nid++,_born:time,type:'turb',model:tl,i:t.i,j:t.j,state:instant?'run':'build',prog:instant?MODELS[tl].build:0,health:100,age:0,ang:VR()*6.28,e:0,av:null,wake:0,pm:false,fault:-1};
   if(t.tree){t.tree=0;if(t.t==='forest')t.t='grass'}
   S.objs.push(o);return o;
 }
@@ -197,7 +197,7 @@ function build(tl,t,quiet){
   else if(tl==='road'){t.road=true;if(!quiet)buildCache()}
   else{
     if(t.tree){t.tree=0;if(t.t==='forest')t.t='grass'}
-    S.objs.push({id:S.nid++,type:'fac',kind:tl,i:t.i,j:t.j});
+    S.objs.push({id:S.nid++,type:'fac',kind:tl,i:t.i,j:t.j,_born:time});
     if(tl==='mast'){survey(t.i+.5,t.j+.5,FAC.mast.range);if(!quiet)toast('測風塔啟用，周邊風況已量測','good')}
     else if(!quiet)toast(tl==='osub'?`海上變電站完工，含海纜 ${fmt(cableCost(t.i,t.j),1)}M`:`${FAC[tl].name}完工`,'good');
   }

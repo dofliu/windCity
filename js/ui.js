@@ -77,9 +77,11 @@ function thumb(kind){
   const dep=m?6/sc:6;poly(c,[iso(-.5,.5),iso(.5,.5),[iso(.5,.5)[0],iso(.5,.5)[1]+dep],[iso(-.5,.5)[0],iso(-.5,.5)[1]+dep]],wet?'#2a8aa0':'#8e6a47');
   poly(c,[iso(.5,-.5),iso(.5,.5),[iso(.5,.5)[0],iso(.5,.5)[1]+dep],[iso(.5,-.5)[0],iso(.5,-.5)[1]+dep]],wet?'#1f6f84':'#6f5237');
   if(kind==='port'){poly(c,[iso(-.5,-.5),iso(.5,-.5),iso(.5,0),iso(-.5,0)],'#3fb3c2')}
+  OUTLINE=CART()?.9:0;
   if(m)drawTurbine(c,0,0,m,.35,{state:'run',flow:NE,id:0});
   else if(kind==='road'){const t={i:0,j:0};c.translate(0,-16);poly(c,[iso(.22,0),iso(.78,0),iso(.78,1),iso(.22,1)],'#a9a69a');poly(c,[iso(.27,0),iso(.73,0),iso(.73,1),iso(.27,1)],'#5c6167');c.strokeStyle='rgba(240,232,200,.85)';c.setLineDash([2.6,2.6]);const a=iso(.5,0),b=iso(.5,1);c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke();c.setLineDash([])}
   else drawFac(c,0,0,kind,null);
+  OUTLINE=0;
   thumbs[kind]=cvs;return cvs;
 }
 const TRAY={get turb(){return lvModels()},get fac(){return lvFacs()}};
@@ -415,10 +417,18 @@ function showSettings(){
     <button id="setMute" aria-pressed="${SETTINGS.mute}"><b>全部靜音</b><span>${SETTINGS.mute?'目前靜音':'目前有聲音'}</span></button>
     <button id="setDay" aria-pressed="${SETTINGS.daynight}"><b>日夜循環</b><span>${SETTINGS.daynight?'約 2.5 分鐘一輪，夜晚亮燈':'固定白天'}</span></button>
   </div>
+  <h4>畫面風格</h4>
+  <div class="sbx-tg">
+    <button data-style="cartoon" aria-pressed="${CART()}"><b>卡通</b><span>粗輪廓線、鮮豔色彩、建物彈跳出現</span></button>
+    <button data-style="detail" aria-pressed="${!CART()}"><b>精緻</b><span>細膩光影與紋理、柔和色調</span></button>
+  </div>
   <p style="font-size:12.5px">背景音樂會隨季節換情緒，颱風來時轉為緊張的版本；音樂與音效都是即時合成，不需要下載音檔。</p>`;
   const c=openModal(html,'',true);
   $('#mX').onclick=closeModal;
   for(const k of['music','sfx','amb']){const r=$('#set-'+k);r.oninput=()=>{SETTINGS[k]=r.value/100;r.nextElementSibling.textContent=r.value;applyVolumes();saveSettings()};r.onchange=()=>{if(k==='sfx')sfx('coin')}}
   $('#setMute').onclick=()=>{SETTINGS.mute=!SETTINGS.mute;saveSettings();applyVolumes();soundIcon();showSettings()};
   $('#setDay').onclick=()=>{SETTINGS.daynight=!SETTINGS.daynight;saveSettings();showSettings()};
+  for(const b of c.querySelectorAll('[data-style]'))b.onclick=()=>{if(SETTINGS.style===b.dataset.style)return;SETTINGS.style=b.dataset.style;saveSettings();applyStyle();showSettings()};
 }
+// 切換畫面風格：重畫精靈圖、縮圖、地形快取，並讓地圖重新彈出一次
+function applyStyle(){initSprites();for(const k in thumbs)delete thumbs[k];if(S){buildCache();rebuildDrawables();INTRO_T=time;renderTray()}}
