@@ -14,6 +14,7 @@ function loadSave(id){
 }
 // 把一個狀態放上舞台
 function enterState(st){
+  tutStop();
   setLevel(st.level);S=st;
   selected=null;preview=null;tool='inspect';cat='inspect';weatherFx='clear';
   for(const b of document.querySelectorAll('.cat'))b.setAttribute('aria-pressed',String(b.dataset.cat==='inspect'));
@@ -25,10 +26,10 @@ function enterState(st){
 function startLevel(id,fresh){
   const L=LEVEL_BY_ID[id];if(!L||!levelOpen(L)){toast('這一關尚未開放','bad');return}
   hideLevels();closeModal();
-  if(fresh)clearSave(id);
-  const sv=fresh?null:loadSave(id);
+  if(fresh||L.tutorial)clearSave(id);
+  const sv=fresh||L.tutorial?null:loadSave(id);
   if(sv){enterState(sv);if(S.over)showFinal()}
-  else{enterState(newState(id));save();showBrief(false)}
+  else{enterState(newState(id));save();if(L.tutorial)tutStart();else showBrief(false)}
   sfx('start');
 }
 function wire(){
@@ -50,7 +51,9 @@ function start(data){
   const sv=last&&LEVEL_BY_ID[last]&&loadSave(last);
   if(sv)enterState(sv);
   else{const st=newState('coast');st._backdrop=true;enterState(st)}
-  showLevels();
+  // 第一次來玩：直接進入新手導引
+  if(!sv&&!tutDone()&&!Object.keys(PROGRESS).length)startLevel('tutorial',true);
+  else showLevels();
   requestAnimationFrame(frame);
 }
 window.__wft={get S(){return S},get LV(){return LV},build:(k,i,j)=>build(k,tile(i,j)),endTurn,market,tile,research,buy:(px,py)=>buyParcel(S.parcels[py*NP+px]),cam,

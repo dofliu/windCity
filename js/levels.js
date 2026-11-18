@@ -28,6 +28,11 @@ function gradeOf(){
 // models / facs：這一關可以蓋的機型與設施；tech：開局就解鎖的技術
 const DEF_MODELS=['t2','t4','t6','t10'], DEF_FACS=['sub','om','mast','ware','bess','road'];
 const LEVELS=[
+  {id:'tutorial',no:0,name:'新手導引',tag:'一步一步教',diff:0,tutorial:true,noEvents:true,
+    desc:'跟著提示蓋好第一座變電站與第一部風機，看它開始發電。大約 3 分鐘。',
+    map:{gen:'coast',N:12,seed:4242,coast:8.6,villages:[[2,2]]},own:[[0,1],[1,1]],start:{cash:200,steel:60,blades:1,crews:1,support:70},turns:null,goals:[],
+    models:['t2'],facs:['sub','road'],mod:{fault:0},
+    learn:['先蓋變電站，風機才能併網','到市場補鋼材','把風機蓋在風大、又在變電站範圍內的地方','結束本季，看季報與發電量']},
   {id:'sandbox',no:0,name:'測試關卡',tag:'自由建造',diff:0,sandbox:true,
     desc:'資金無限、所有土地與技術全開、沒有回合限制。可以任意建造、一鍵填滿風機、手動觸發事件，實驗排列、尾流與維運策略。',
     map:{gen:'coast',N:24,seed:20271},own:'all',start:{cash:999999,steel:99999,blades:9999,crews:99,vessels:30,support:70},turns:null,goals:[],tech:'all',
@@ -72,12 +77,12 @@ const LEVELS=[
     learn:['陸上變電站只有 80 MW：外海機群要靠 300 MW 的海上變電站','海纜依離岸距離計價，海上變電站別離陸上變電站太遠','深海風況最好，但浮動式機組造價與運維費最高']},
 ];
 const LEVEL_BY_ID=Object.fromEntries(LEVELS.map(l=>[l.id,l]));
-let LV=LEVELS[1];
+let LV=LEVEL_BY_ID.coast;
 const MOD_DEF={typhoon:1,curtailW:1,curtailAmt:.18,tariff:4.2,land:1,fault:1};
 const MOD=k=>(LV.mod&&LV.mod[k]!=null)?LV.mod[k]:MOD_DEF[k];
 const lvModels=()=>LV.models||DEF_MODELS;
 const lvFacs=()=>LV.facs||DEF_FACS;
-function setLevel(id){LV=LEVEL_BY_ID[id]||LEVELS[1];N=LV.map.N;NP=N/PS}
+function setLevel(id){LV=LEVEL_BY_ID[id]||LEVEL_BY_ID.coast;N=LV.map.N;NP=N/PS}
 
 // ================= 地圖生成 =================
 const DIR4=[[1,0],[-1,0],[0,1],[0,-1]];

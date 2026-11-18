@@ -5,10 +5,11 @@ const turns=+(process.argv[2]||3),out=path.resolve(__dirname,'out');fs.mkdirSync
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1280,height:800}});
 const errs=[];p.on('pageerror',e=>errs.push(e.message+' @'+(e.stack||'').split('\n')[1]));p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});
 await p.goto('file://'+path.resolve(__dirname,'..','index.html')+'#admin');await p.waitForTimeout(1200);
+await p.evaluate(()=>window.__wft.showLevels());await p.waitForTimeout(300);
 await p.screenshot({path:out+'/00-levels.png'});
 // 全部開放後逐關測試
-await p.evaluate(()=>window.__wft.adminSave(Object.fromEntries(['sandbox','coast','hills','storm','aging','offshore','bigoff'].map(k=>[k,'open']))));
-const ids=await p.evaluate(()=>['sandbox','coast','hills','storm','aging','offshore','bigoff']);
+await p.evaluate(()=>window.__wft.adminSave(Object.fromEntries(LEVELS.map(l=>[l.id,'open']))));
+const ids=await p.evaluate(()=>['tutorial','sandbox','coast','hills','storm','aging','offshore','bigoff']);
 for(const id of ids){
   await p.evaluate(id=>window.__wft.startLevel(id,true),id);await p.waitForTimeout(300);
   await p.screenshot({path:`${out}/${id}-brief.png`});

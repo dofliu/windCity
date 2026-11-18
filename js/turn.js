@@ -51,6 +51,7 @@ function forcedEvent(id){
 }
 function rollEvent(){
   const se=season(),T=TURBS.filter(o=>o.state!=='build');
+  if(LV.noEvents)return eventPool().find(x=>x.id==='quiet').mk();
   if(S.sbx){
     if(S.sbx.force){const f=S.sbx.force;S.sbx.force='';return forcedEvent(f)}
     if(!S.sbx.events)return eventPool().find(x=>x.id==='quiet').mk();

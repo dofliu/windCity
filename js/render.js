@@ -579,7 +579,7 @@ function update(dt){
   if(!clouds.length)for(let k=0;k<4;k++)clouds.push({x:VR()*N,y:VR()*N,r:2.5+VR()*3});
   for(const c of clouds){c.x+=f[0]*.25*dt;c.y+=f[1]*.25*dt;if(c.x<-6||c.y<-6||c.x>N+6||c.y>N+6){c.x=VR()*N-f[0]*N*.6;c.y=VR()*N-f[1]*N*.6;}}
   for(let k=floats.length-1;k>=0;k--){floats[k].t+=dt;if(floats[k].t>1.8)floats.splice(k,1)}
-  fxUpdate(dt);audioUpdate();
+  fxUpdate(dt);audioUpdate();if(TUT.on)tutUpdate();
 }
 function spawnWind(init){
   const f=flowNow();

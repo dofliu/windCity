@@ -50,7 +50,7 @@ function levelThumb(L){
 
 // ---------- 關卡選單畫面 ----------
 function showLevels(){
-  closeModal();
+  closeModal();tutStop();
   const el=$('#levels');
   const card=L=>{
     const st=levelState(L),pr=PROGRESS[L.id],sv=loadSave(L.id),stars=pr?pr.stars:0;
@@ -58,13 +58,13 @@ function showLevels(){
     return `<article class="lv ${st.open?'':'locked'} ${L.sandbox?'sbx':''}" data-id="${L.id}">
       <div class="lv-map"><img src="${levelThumb(L)}" alt="${L.name}地圖縮圖">${st.open?'':`<div class="lv-lock">${ic('i-lock')}<span>${st.why}</span></div>`}</div>
       <div class="lv-body">
-        <div class="lv-top"><span class="lv-no">${L.sandbox?'測試':`第 ${L.no} 關`}</span><span class="pill info">${L.tag}</span>
-          ${L.sandbox?'':`<span class="lv-stars" aria-label="${stars} 顆星">${[0,1,2].map(k=>`<svg class="ic ${k<stars?'on':''}"><use href="#i-star"/></svg>`).join('')}</span>`}</div>
+        <div class="lv-top"><span class="lv-no">${L.sandbox?'測試':L.tutorial?'導引':`第 ${L.no} 關`}</span><span class="pill info">${L.tag}</span>
+          ${L.sandbox||L.tutorial?(L.tutorial&&pr?'<span class="pill good" style="margin-left:auto">已完成</span>':''):`<span class="lv-stars" aria-label="${stars} 顆星">${[0,1,2].map(k=>`<svg class="ic ${k<stars?'on':''}"><use href="#i-star"/></svg>`).join('')}</span>`}</div>
         <h3>${L.name}</h3>
         <p>${L.desc}</p>
         ${goals?`<div class="lv-goals">${goals}</div>`:''}
-        <div class="lv-meta">${L.sandbox?'不限回合・資金無限':`${L.turns} 季・難度 ${'●'.repeat(L.diff)}${'○'.repeat(5-L.diff)}`}${pr?`・最佳 ${pr.grade}`:''}</div>
-        <div class="lv-act">${st.open?(sv&&!sv.over?`<button class="btn" data-new="${L.id}">重新開始</button><button class="btn pri" data-go="${L.id}">繼續 ${dateLabel(sv.turn)}</button>`:`<button class="btn pri" data-new="${L.id}">${pr?'再玩一次':'開始'}</button>`):'<button class="btn" disabled>尚未開放</button>'}</div>
+        <div class="lv-meta">${L.tutorial?'約 3 分鐘・跟著提示操作':L.sandbox?'不限回合・資金無限':`${L.turns} 季・難度 ${'●'.repeat(L.diff)}${'○'.repeat(5-L.diff)}`}${pr?`・最佳 ${pr.grade}`:''}</div>
+        <div class="lv-act">${st.open?(sv&&!sv.over&&!L.tutorial?`<button class="btn" data-new="${L.id}">重新開始</button><button class="btn pri" data-go="${L.id}">繼續 ${dateLabel(sv.turn)}</button>`:`<button class="btn pri" data-new="${L.id}">${pr?'再玩一次':'開始'}</button>`):'<button class="btn" disabled>尚未開放</button>'}</div>
       </div></article>`;
   };
   el.innerHTML=`<div class="lv-wrap">
