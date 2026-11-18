@@ -36,7 +36,8 @@ function chebNear(i,j,r,fn){for(let dj=-r;dj<=r;dj++)for(let di=-r;di<=r;di++){i
 const houseNear=(i,j,r)=>chebNear(i,j,r,t=>t.house>0);
 const nearRoad=(i,j,r)=>chebNear(i,j,r,t=>t.road);
 const turbNear=(i,j)=>chebNear(i,j,1,t=>{const o=objOf(t);return o&&o.type==='turb'});
-const omNear=o=>facsOf('om').some(f=>Math.hypot(f.i-o.i,f.j-o.j)<=FAC.om.range);
+// 維運中心 7 格內；離岸機組在海上變電站（兼海上運維基地）8 格內也算
+const omNear=o=>facsOf('om').some(f=>Math.hypot(f.i-o.i,f.j-o.j)<=FAC.om.range)||(MODELS[o.model]&&MODELS[o.model].offshore&&facsOf('osub').some(f=>Math.hypot(f.i-o.i,f.j-o.j)<=FAC.osub.range));
 const nextToWater=(i,j)=>DIR4.some(([a,b])=>{const n=tile(i+a,j+b);return n&&isWater(n)});
 function nearestSub(i,j){let best=null,bd=1e9;for(const s of facsOf('sub')){const d=Math.hypot(s.i-i,s.j-j);if(d<bd){bd=d;best=s}}return best?{s:best,d:bd}:null}
 const cableCost=(i,j)=>{const n=nearestSub(i,j);return n?Math.round(n.d*CABLE_PER_TILE*10)/10:0};

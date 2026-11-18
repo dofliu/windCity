@@ -7,7 +7,7 @@ function typhoonEvent(){
     return {id:'typhoon',title:`颱風「${nm}」逼近`,icon:'i-storm',tone:'bad',storm:true,
       desc:'氣象署發布海上陸上颱風警報，預估陣風超過 17 級。要讓機組提前順槳、鎖定轉子嗎？',
       choices:[
-        {label:'預防性停機',sub:'每部機組損失約 12% 運轉時間，受損機率約 4%',apply:ev=>{ev.typhoon='safe';ev.note='已提前順槳停機'}},
+        {label:'預防性停機',sub:'每部機組少發約 12% 電量（外部因素，不計入可用率），受損機率約 4%',apply:ev=>{ev.typhoon='safe';ev.note='已提前順槳停機'}},
         {label:'維持運轉搶發電',sub:'本季風速 +8%，每部機組約 22% 機率受損（離岸 32%）',apply:ev=>{ev.typhoon='risky';ev.windMul=1.08;ev.note='颱風期間持續運轉'}},
       ]};
 }
@@ -111,14 +111,14 @@ function processTurn(ev){
   for(const o of TURBS){
     const m=MODELS[o.model];o.e=0;
     if(o.state==='build'){o.av=null;continue}
-    const act=o.fresh?.45:1;let up=act,newF=false;
+    const act=o.fresh?.45:1;let up=act,newF=false,ext=0; // ext：外部因素停機（颱風預防停機），損失發電但不計入可用率
     if(o.state==='fault'){
       if(o.repairing&&o.rprog>=repairTurns(o)){o.state='run';o.repairing=false;o.fault=-1;o.health=Math.max(o.health,72);up=act*(omNear(o)?.7:.5);rep.inc.push({tone:'good',txt:`${tname(o)} 修復完成，恢復併網`})}
       else up=0;
     }
     if(o.pmDo){o.health=100;up=Math.max(0,up-.06*act);o.pmDo=false;rep.inc.push({tone:'good',txt:`${tname(o)} 完成預防性維護`})}
     if(o.state==='run'&&ev.typhoon){
-      if(ev.typhoon==='safe')up-=.12*act;
+      if(ev.typhoon==='safe')ext=.12*act;
       const pd=ev.typhoon==='safe'?.04:(m.offshore?.32:.22);
       if(R()<pd){o.health=Math.max(5,o.health-(28+R()*16));o.state='fault';o.fault=5;o.repairing=false;up*=.5;newF=true;rep.inc.push({tone:'bad',txt:`${tname(o)} 颱風造成葉片損傷`})}
     }
@@ -128,7 +128,7 @@ function processTurn(ev){
     const v=tile(o.i,o.j).wind*wm*shear(m),c=cf(o.model,v);
     let wk=0;for(const[f,w]of flows)wk+=w*wakeLoss(o.i,o.j,f,o,false);
     const gf=grid.fac.get(o)||0;
-    const e=m.mw*c*HOURS*up*(1-wk)*gf*(1-curtail)*(ev.energyMul||1)*.97;
+    const e=m.mw*c*HOURS*Math.max(0,up-ext)*(1-wk)*gf*(1-curtail)*(ev.energyMul||1)*.97;
     o.e=e;o.av=up/act;o.wake=wk;o.v=v;
     rep.energy+=e;rep.ideal+=m.mw*c*HOURS*act;rep.mwAct+=m.mw*act;rep.upW+=m.mw*up;rep.wakeW+=wk*m.mw*act;rep.vW+=v*m.mw*act;
     if(!gf)rep.inc.push({tone:'warn',txt:`${tname(o)} 未併網，發電無法售出`});
@@ -141,12 +141,13 @@ function processTurn(ev){
   rep.cost.crew=S.crews*CREW_PAY+S.vessels*VESSEL_PAY;
   rep.cost.fac=FACS.reduce((s,f)=>s+FAC[f.kind].up,0);
   rep.cost.event=ev.cost||0;
+  rep.cost.fund=FUND[S.fund||0].cost;
   rep.cost.interest=S.cash<0?-S.cash*.025:0;
   const costT=Object.values(rep.cost).reduce((a,b)=>a+b,0);
   rep.net=rep.rev+rep.bess+rep.gain-costT;
   S.cash+=rep.net;
   const s0=S.support;
-  let ds=(58-S.support)*.06-TURBS.filter(o=>houseNear(o.i,o.j,3)).length*.4+Math.min(2,facsOf('om').length*.6)+(ev.support||0);
+  let ds=(58-S.support)*.06-TURBS.filter(o=>houseNear(o.i,o.j,3)).length*.4+Math.min(2,facsOf('om').length*.6)+FUND[S.fund||0].sup+(ev.support||0);
   if(ev.typhoon&&rep.inc.filter(x=>x.tone==='bad').length>2)ds-=2;
   S.support=clamp(S.support+ds,0,100);rep.dSup=S.support-s0;
   S.tmods.forEach(m=>m.t--);S.tmods=S.tmods.filter(m=>m.t>0);

@@ -83,7 +83,7 @@ function thumb(kind){
   thumbs[kind]=cvs;return cvs;
 }
 const TRAY={get turb(){return lvModels()},get fac(){return lvFacs()}};
-const FAC_SPEC={sub:`併網半徑 6.5 格・80 MW`,om:'影響半徑 7 格',mast:'量測半徑 5 格',ware:'擴充庫容',bess:'削減限電損失',road:'每格 0.6M',port:'停泊 3 艘工作船',osub:'半徑 8 格・300 MW'};
+const FAC_SPEC={sub:`併網半徑 6.5 格・80 MW`,om:'影響半徑 7 格',mast:'量測半徑 5 格',ware:'擴充庫容',bess:'削減限電損失',road:'每格 0.6M',port:'停泊 4 艘工作船',osub:'半徑 8 格・300 MW'};
 function renderTray(light){
   const tr=$('#tray');
   if(cat==='turb'||cat==='fac'){
@@ -273,7 +273,7 @@ function showReport(rep){
     ${rep.bess?`<tr><td>儲能輔助服務</td><td class="pos">${fmt(rep.bess,1)}</td></tr>`:''}
     ${rep.gain?`<tr><td>契約預付款</td><td class="pos">${fmt(rep.gain,1)}</td></tr>`:''}
     ${row('風機運維',rep.cost.om,true)}${row('工班薪資',rep.cost.crew,true)}${row('設施營運',rep.cost.fac,true)}
-    ${rep.cost.repair?row('維修與預防保養',rep.cost.repair,true):''}${rep.cost.event?row('事件支出',rep.cost.event,true):''}${rep.cost.interest?row('融資利息',rep.cost.interest,true):''}
+    ${rep.cost.repair?row('維修與預防保養',rep.cost.repair,true):''}${rep.cost.fund?row('地方回饋金',rep.cost.fund,true):''}${rep.cost.event?row('事件支出',rep.cost.event,true):''}${rep.cost.interest?row('融資利息',rep.cost.interest,true):''}
     <tr class="total"><td>本季淨利</td><td class="${rep.net>=0?'pos':'negc'}">${rep.net>=0?'+':'−'}${fmt(Math.abs(rep.net),1)}</td></tr>
   </table>
   ${rep.built.length||rep.inc.length?`<h4>現場紀錄</h4><ul class="inc">${rep.built.map(b=>`<li class="good">${b} 完工併網</li>`).join('')}${rep.inc.map(x=>`<li class="${x.tone}">${x.txt}</li>`).join('')}</ul>`:''}
@@ -315,6 +315,9 @@ function showMarket(){
     <button class="btn sm" data-a="vhire" ${S.vessels>=vesselCap()?'disabled':''}>租用</button><button class="btn sm" data-a="vfire" ${S.vessels<=vesselBusy()?'disabled':''}>退租一艘</button></div></div>`:''}
   <h4>維護策略</h4>
   <div class="seg">${POLICY.map((p,k)=>`<button data-a="pol${k}" aria-pressed="${S.policy===k}"><b>${p.name}</b><span>${p.desc}</span></button>`).join('')}</div>
+  <h4>地方回饋方案・目前民眾支持度 ${Math.round(S.support)}%</h4>
+  <div class="seg">${FUND.map((f,k)=>`<button data-a="fund${k}" aria-pressed="${(S.fund||0)===k}"><b>${f.name}</b><span>${f.desc}</span></button>`).join('')}</div>
+  <p style="font-size:12.5px">風機 3 格內有民宅時，每部每季支持度 −0.4。支持度低於 30% 會暫停核發建照。</p>
   ${techs.length?`<h4>技術研發</h4>
   ${techs.map(k=>`<div class="mrow">${ic('i-flask')}<div class="mi"><b>${TECH[k].name}</b><span>${TECH[k].desc}</span></div><div class="mb">${S.tech[k]?'<span class="pill good">已完成</span>':`<button class="btn sm pri" data-a="r_${k}">研發 ${techCost(k)}M</button>`}</div></div>`).join('')}`:''}
   <h4>財務</h4>
@@ -334,6 +337,7 @@ function market(a){
   else if(a==='vhire'){if(S.vessels>=vesselCap()){toast(vesselCap()?'港口泊位已滿，再蓋一座港口':'要先蓋運維港口才能租船','bad');return}if(pay(VESSEL_HIRE)){S.vessels++;toast('工作船進港','good')}}
   else if(a==='vfire'){if(S.vessels>vesselBusy())S.vessels--}
   else if(a.startsWith('pol'))S.policy=+a.slice(3);
+  else if(a.startsWith('fund'))S.fund=+a.slice(4);
   else if(a.startsWith('r_'))research(a.slice(2));
   updateHUD();save();
 }

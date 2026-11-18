@@ -4,7 +4,7 @@
 // 地圖邊長 N 依關卡而定（必須是地塊邊長 PS 的倍數），由 setLevel() 設定
 let N=24, NP=4;
 const TW=64, TH=32, HZ=12, PS=6, BASE=-3.4;
-const HOURS=2190, CREW_PAY=2.4, CREW_HIRE=3, VESSEL_PAY=3, VESSEL_HIRE=4, VESSELS_PER_PORT=3, START_YEAR=2027;
+const HOURS=2190, CREW_PAY=2.4, CREW_HIRE=3, VESSEL_PAY=3, VESSEL_HIRE=4, VESSELS_PER_PORT=4, START_YEAR=2027;
 const $=s=>document.querySelector(s);
 const VR=Math.random.bind(Math); // visual-only randomness
 const GR=()=>(window.__grand||Math.random)(); // game-logic randomness (seedable for replays)
@@ -40,10 +40,12 @@ const FAC={
   ware:{name:'倉儲中心',icon:'i-ware',cash:16,steel:30,up:.3,desc:'鋼材庫容 +500 t、葉片庫容 +10 組。'},
   bess:{name:'儲能系統',icon:'i-bess',cash:48,steel:15,up:.4,desc:'每座減少 25% 限電損失，並提供每季 1.6M 的輔助服務收益。'},
   road:{name:'道路',icon:'i-road',cash:.6,steel:0,up:0,desc:'維修車輛進出；大型機組必須緊鄰道路。風機 2 格內沒有道路時，修復要多花一季。'},
-  port:{name:'運維港口',icon:'i-port',cash:60,steel:80,up:1.5,offOps:true,desc:'建在緊鄰海水的陸地上。離岸機組的施工與維修都要從港口出船，每座港口可停泊 3 艘工作船。'},
-  osub:{name:'海上變電站',icon:'i-osub',cash:140,steel:200,up:2.5,cap:300,range:8,water:true,offOps:true,desc:'建在海上，8 格內的離岸機組可併網，容量 300 MW。需要陸上變電站接收，海纜依距離計價（每格 1.2M）。'},
+  port:{name:'運維港口',icon:'i-port',cash:60,steel:80,up:1.5,offOps:true,desc:'建在緊鄰海水的陸地上。離岸機組的施工與維修都要從港口出船，每座港口可停泊 4 艘工作船。'},
+  osub:{name:'海上變電站',icon:'i-osub',cash:140,steel:200,up:2.5,cap:300,range:8,water:true,offOps:true,desc:'建在海上，8 格內的離岸機組可併網，容量 300 MW，平台同時是海上運維基地（範圍內離岸機組享有維運中心效果）。需要陸上變電站接收，海纜依距離計價（每格 1.2M）。'},
 };
 const CABLE_PER_TILE=1.2;
+// 地方回饋方案：每季支出與民眾支持度提升
+const FUND=[{name:'無',cost:0,sup:0,desc:'不額外回饋'},{name:'基本',cost:2,sup:1.2,desc:'每季 2M・支持度 +1.2'},{name:'加強',cost:5,sup:2.8,desc:'每季 5M・支持度 +2.8'}];
 const FAULTS=[
   {n:'變槳系統異常',cost:3,w:3},
   {n:'控制器通訊中斷',cost:1.5,w:3},
