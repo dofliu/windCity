@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>風場大亨</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M14.6 9.3c-.4-.9-1.4-1.5-2.6-1.5-1.5 0-2.6.8-2.6 2s1.1 1.7 2.6 2 2.6.8 2.6 2.1-1.1 2.1-2.6 2.1c-1.3 0-2.3-.6-2.7-1.6M12 6.2v1.6M12 16.2v1.6"/></symbol>
+  <symbol id="i-steel" viewBox="0 0 24 24"><path d="M5 4.5h14v3h-5v9h5v3H5v-3h5v-9H5z"/></symbol>
+  <symbol id="i-blade" viewBox="0 0 24 24"><path d="M11.5 20.5c-.8-6.4.9-12.4 6-17.5.6 6.8-1.4 12.6-6 17.5z"/><path d="M8 20.5h7"/></symbol>
+  <symbol id="i-crew" viewBox="0 0 24 24"><path d="M3.5 16h17M5.5 16v-1.6a6.5 6.5 0 0 1 13 0V16M10 8.2V6h4v2.2M7 19.5h10"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2.2l2.3 10.5h10.3L20 7.5H6.4"/><circle cx="9" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-cursor" viewBox="0 0 24 24"><path d="M5.5 3.5l13 6.5-5.6 1.9-2 5.6z"/><path d="M13.2 12.2l5.3 5.3"/></symbol>
+  <symbol id="i-turbine" viewBox="0 0 24 24"><path d="M12 10.5V21M9.5 21h5"/><path d="M12 10.5L12.8 3M12 10.5l6.4 3.6M12 10.5l-6.6 3.4"/><circle cx="12" cy="10.5" r="1.3"/></symbol>
+  <symbol id="i-building" viewBox="0 0 24 24"><path d="M3 20.5h18M5 20.5V10l5 3v-3l5 3V6h4v14.5"/></symbol>
+  <symbol id="i-land" viewBox="0 0 24 24"><path d="M3 7.5l6-3 6 3 6-3v12l-6 3-6-3-6 3z"/><path d="M9 4.5v12M15 7.5v12"/></symbol>
+  <symbol id="i-bulldoze" viewBox="0 0 24 24"><path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10.5 11v5.5M13.5 11v5.5"/></symbol>
+  <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8.5h10.5a3 3 0 1 0-3-3M3 12.5h15a3 3 0 1 1-3 3M3 16.5h6"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13.5 2.5L5 13.5h6l-1 8 8.5-11h-6z"/></symbol>
+  <symbol id="i-wake" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><path d="M7 12c4 0 6-3 14-4.5M7 12c4 0 6 3 14 4.5M9 12h12"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5l12 7.5-12 7.5z"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.3v.2"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-storm" viewBox="0 0 24 24"><path d="M7 16a4.5 4.5 0 1 1 1.2-8.8A5.5 5.5 0 0 1 18.6 9 3.6 3.6 0 0 1 17.5 16"/><path d="M12.5 13l-2 4h3l-2 4"/></symbol>
+  <symbol id="i-road" viewBox="0 0 24 24"><path d="M8.5 3.5L5 20.5M15.5 3.5l3.5 17M12 5v2.5M12 11v2.5M12 17v2.5"/></symbol>
+  <symbol id="i-mast" viewBox="0 0 24 24"><path d="M12 21V3.5M8.5 21L12 6l3.5 15M7.5 5.5h9"/><circle cx="12" cy="2.6" r=".6"/></symbol>
+  <symbol id="i-sub" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M8 9V5M16 9V5M6 5h4M14 5h4M12.6 11.5l-2.3 3.5h3.4l-2.3 3.5"/></symbol>
+  <symbol id="i-om" viewBox="0 0 24 24"><path d="M3.5 11L12 4l8.5 7v9.5h-17z"/><path d="M12 11v6M9 14h6"/></symbol>
+  <symbol id="i-ware" viewBox="0 0 24 24"><path d="M3 10l9-5.5 9 5.5v10.5H3z"/><path d="M7 20.5V13h10v7.5M7 16.5h10"/></symbol>
+  <symbol id="i-bess" viewBox="0 0 24 24"><rect x="3" y="7.5" width="16" height="10" rx="1.5"/><path d="M21 11v3M8.5 12.5h4M10.5 10.5v4"/></symbol>
+  <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></symbol>
+  <symbol id="i-trenddown" viewBox="0 0 24 24"><path d="M3 7l6 6 4-4 8 8M15 17h6v-6"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14.5 3v4.5H19M9 12h7M9 15.5h7"/></symbol>
+  <symbol id="i-bird" viewBox="0 0 24 24"><path d="M2.5 9.5c3.5-.5 6 1 7.5 4 1.5-3 4-4.5 7.5-4M10 13.5l4-6 2 1.5M14.5 17c1.5-.3 3 .4 3.7 1.6.8-1.2 2-1.9 3.3-1.6"/></symbol>
+  <symbol id="i-crane" viewBox="0 0 24 24"><path d="M6 21V4M6 4l13 3M6 8l13-1M17 7v6M15.5 13h3M3.5 21h5"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14zM5 19l7-7"/></symbol>
+  <symbol id="i-people" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19.5a5.5 5.5 0 0 1 11 0M16 5.5a3 3 0 0 1 0 5.6M17.5 14a5 5 0 0 1 3 5.5"/></symbol>
+  <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9.5 3.5h5M10.5 3.5v6L5 19a1.5 1.5 0 0 0 1.3 2h11.4A1.5 1.5 0 0 0 19 19l-5.5-9.5v-6M7.5 15h9"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-focus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v4M12 17.5v4M2.5 12h4M17.5 12h4"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M3 12h16M13 6l6 6-6 6"/></symbol>
+</svg>
+
+<canvas id="cv" aria-label="風場地圖"></canvas>
+
+<div id="hud">
+  <header id="top">
+    <div class="brand glass">
+      <div class="logo"><svg class="ic"><use href="#i-turbine"/></svg></div>
+      <div><h1>風場大亨</h1><p id="date"></p></div>
+    </div>
+    <div id="res" class="glass">
+      <div class="chip" id="c-cash"><svg class="ic"><use href="#i-coin"/></svg><div><span class="k">資金 NT$</span><span class="v"></span></div></div>
+      <div class="chip" id="c-steel"><svg class="ic"><use href="#i-steel"/></svg><div><span class="k">鋼材</span><span class="v"></span></div></div>
+      <div class="chip" id="c-blade"><svg class="ic"><use href="#i-blade"/></svg><div><span class="k">葉片</span><span class="v"></span></div></div>
+      <div class="chip" id="c-crew"><svg class="ic"><use href="#i-crew"/></svg><div><span class="k">工班</span><span class="v"></span></div></div>
+      <div class="chip" id="c-sup"><svg class="ic"><use href="#i-heart"/></svg><div><span class="k">民眾支持</span><span class="v"></span></div></div>
+    </div>
+    <div class="tbtns">
+      <button class="tbtn glass" id="bMarket"><svg class="ic"><use href="#i-cart"/></svg>市場</button>
+      <button class="tbtn glass" id="bGoals"><svg class="ic"><use href="#i-target"/></svg>目標</button>
+      <button class="tbtn glass" id="bMenu"><svg class="ic"><use href="#i-menu"/></svg>選單</button>
+    </div>
+  </header>
+
+  <div id="mid">
+    <div id="leftcol">
+      <nav id="layers" class="glass" aria-label="圖層">
+        <button class="lay" data-ov="wind" aria-pressed="false"><svg class="ic"><use href="#i-wind"/></svg>風能</button>
+        <button class="lay" data-ov="land" aria-pressed="false"><svg class="ic"><use href="#i-land"/></svg>土地</button>
+        <button class="lay" data-ov="grid" aria-pressed="false"><svg class="ic"><use href="#i-bolt"/></svg>電網</button>
+        <button class="lay" data-ov="wake" aria-pressed="false"><svg class="ic"><use href="#i-wake"/></svg>尾流</button>
+      </nav>
+      <div id="zoom" class="glass">
+        <button id="zIn" aria-label="放大"><svg class="ic"><use href="#i-plus"/></svg></button>
+        <button id="zOut" aria-label="縮小"><svg class="ic"><use href="#i-minus"/></svg></button>
+        <button id="zHome" aria-label="回到我的土地"><svg class="ic"><use href="#i-focus"/></svg></button>
+      </div>
+      <div id="legend" class="glass" hidden></div>
+    </div>
+    <div id="side">
+      <section id="kpi" class="glass">
+        <button class="kpi-head" id="kpiHead">
+          <span class="eyebrow">風場營運</span>
+          <span id="kPipe" class="pipe"></span>
+          <span class="kpi-mw"><b id="kMW">0.0</b><small>MW</small></span>
+          <svg class="ic chev"><use href="#i-chev"/></svg>
+        </button>
+        <div class="kpi-body">
+          <div class="kgrid">
+            <div id="g-e"><span>上季發電</span><b id="kE">—</b><small>GWh</small></div>
+            <div id="g-cf"><span>容量因數</span><b id="kCF">—</b><small>%</small></div>
+            <div id="g-av"><span>可用率</span><b id="kAV">—</b><small>%</small></div>
+            <div id="g-pr"><span>效能 PR</span><b id="kPR">—</b><small>%</small></div>
+            <div id="g-wk"><span>尾流損失</span><b id="kWK">—</b><small>%</small></div>
+            <div id="g-tr"><span>售電費率</span><b id="kTR">—</b><small>元</small></div>
+          </div>
+          <canvas id="spark"></canvas>
+          <div class="windrow"><svg class="ic" id="wArrow"><use href="#i-arrow"/></svg><span id="kWind"></span></div>
+        </div>
+      </section>
+      <section id="insp" class="glass" hidden></section>
+    </div>
+  </div>
+
+  <div id="bottom">
+    <div id="confirm" class="glass" hidden></div>
+    <div id="tray" class="glass" hidden></div>
+    <nav id="dock" class="glass" aria-label="工具">
+      <button class="cat" data-cat="inspect" aria-pressed="true"><svg class="ic"><use href="#i-cursor"/></svg>檢視</button>
+      <button class="cat" data-cat="turb" aria-pressed="false"><svg class="ic"><use href="#i-turbine"/></svg>風機</button>
+      <button class="cat" data-cat="fac" aria-pressed="false"><svg class="ic"><use href="#i-building"/></svg>設施</button>
+      <button class="cat" data-cat="land" aria-pressed="false"><svg class="ic"><use href="#i-land"/></svg>土地</button>
+      <button class="cat" data-cat="bull" aria-pressed="false"><svg class="ic"><use href="#i-bulldoze"/></svg>拆除</button>
+      <button id="next"><div class="play"><svg class="ic"><use href="#i-play"/></svg></div><span><span id="nextLbl">結束本季</span><small id="nextSub"></small></span></button>
+    </nav>
+  </div>
+</div>
+
+<div id="modal" hidden><div class="card" id="mcard" role="dialog" aria-modal="true"></div></div>
+<div id="toasts" aria-live="polite"></div>
+<script src="js/config.js"></script>
+<script src="js/state.js"></script>
+<script src="js/turn.js"></script>
+<script src="js/render.js"></script>
+<script src="js/input.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
