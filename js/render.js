@@ -232,7 +232,15 @@ function drawTurbine(c,x,y,m,ang,o){
   if(!off){shadowEl(c,x+1.5,y+.8,8*k,3.6*k,.2)}
   c.strokeStyle='rgba(16,44,40,.12)';c.lineWidth=2.6*k;c.lineCap='round';c.beginPath();c.moveTo(x,y);c.lineTo(x+th*.42,y+th*.2);c.stroke();
   if(st!=='build'){c.fillStyle='rgba(16,44,40,.07)';c.beginPath();c.ellipse(x+th*.42,y+th*.2,m.rr*.5,m.rr*.2,.45,0,6.283);c.fill()}
-  if(off){
+  if(m.floating){
+    // 半潛式浮台：三根浮筒柱、水線下的連接浮箱、錨鍊
+    c.strokeStyle='rgba(30,50,60,.35)';c.lineWidth=.6;for(const[a,b]of[[-.55,-.1],[.5,-.3],[.1,.55]]){const p=sv(a,b);c.beginPath();c.moveTo(x,y+2);c.lineTo(x+p[0],y+p[1]+3);c.stroke()}
+    const cols=[sv(0,-.24),sv(.21,.12),sv(-.21,.12)].map(p=>[x+p[0]*k,y+p[1]*k]);
+    c.fillStyle='rgba(255,255,255,.5)';for(const[a,b]of cols){c.beginPath();c.ellipse(a,b+1.5,5.5*k,2.4*k,0,0,6.283);c.fill()}
+    c.strokeStyle='#3c4a50';c.lineWidth=3*k;c.beginPath();c.moveTo(...cols[0]);c.lineTo(...cols[1]);c.lineTo(...cols[2]);c.closePath();c.stroke();
+    c.strokeStyle='#c99a1a';c.lineWidth=1.4*k;c.beginPath();for(const[a,b]of cols){c.moveTo(a,b-8*k);c.lineTo(x,y-9)}c.stroke();
+    for(const[a,b]of [...cols].sort((p,q)=>p[1]-q[1])){const g=c.createLinearGradient(a-3*k,0,a+3*k,0);g.addColorStop(0,'#ffe36e');g.addColorStop(1,'#cf9410');c.fillStyle=g;c.fillRect(a-3*k,b-9*k,6*k,9*k);c.fillStyle='#ffe98a';c.beginPath();c.ellipse(a,b-9*k,3*k,1.4*k,0,0,6.283);c.fill()}
+  }else if(off){
     c.fillStyle='#2f3e45';c.fillRect(x-bw*.85,y-2,bw*1.7,5);
     c.fillStyle='rgba(255,255,255,.55)';c.beginPath();c.ellipse(x,y+2,bw*2.2,bw*.9,0,0,6.283);c.fill();
     const g=c.createLinearGradient(x-bw,0,x+bw,0);g.addColorStop(0,'#ffe066');g.addColorStop(1,'#cf9410');c.fillStyle=g;c.fillRect(x-bw*1.05,y-10,bw*2.1,9);
@@ -318,6 +326,35 @@ function drawFac(c,x,y,kind,o){
     gable(c,0,-.04,.8,.56,12,5,.03,'#b3c0c8','#8c9aa4','#98a5ae');
     c.strokeStyle='rgba(255,255,255,.25)';c.lineWidth=.4;for(let u=-.36;u<.4;u+=.08){const a=P3(u,.27,12),b=P3(u,-.04,17);c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke()}
     for(let s=0;s<3;s++)box(c,.36,.36-s*.0,.16,.09,1.6,s*1.6,'#d47c46','#c06a36','#9a5328');
+  }else if(kind==='port'){
+    pad('#b9bcb6');
+    // 碼頭邊緣朝向海的一側
+    const t=o?tile(o.i,o.j):null;let wd=[0,1];if(t)for(const d of DIR4){const n=tile(t.i+d[0],t.j+d[1]);if(n&&isWater(n)){wd=d;break}}
+    c.strokeStyle='#f2c230';c.lineWidth=1.2;const e0=P3(wd[0]*.44-wd[1]*.44,wd[1]*.44-wd[0]*.44,.2),e1=P3(wd[0]*.44+wd[1]*.44,wd[1]*.44+wd[0]*.44,.2);c.setLineDash([3,2]);c.beginPath();c.moveTo(e0[0],e0[1]);c.lineTo(e1[0],e1[1]);c.stroke();c.setLineDash([]);
+    box(c,-.22,-.22,.3,.24,7,0,'#3f6f8f','#eef1ee','#c4cbc8','rgba(0,0,0,.12)');
+    // 岸邊吊車
+    const cb=P3(.1,.05,0),ct=P3(.1,.05,30),cj=P3(.1+wd[0]*.6,.05+wd[1]*.6,30);
+    c.strokeStyle='#e0a314';c.lineWidth=1.6;c.beginPath();c.moveTo(cb[0]-3,cb[1]);c.lineTo(ct[0],ct[1]);c.lineTo(cb[0]+3,cb[1]);c.moveTo(ct[0],ct[1]);c.lineTo(cj[0],cj[1]);c.stroke();
+    c.strokeStyle='#2c3a40';c.lineWidth=.4;c.beginPath();c.moveTo(cj[0],cj[1]);c.lineTo(cj[0],cj[1]+16);c.stroke();
+    // 停泊的工作船
+    const nb=o?Math.min(3,S.vessels):1;
+    for(let v=0;v<nb;v++){const side=(v-1)*.3,q=P3(wd[0]*.72+(wd[1]?side:0),wd[1]*.72+(wd[0]?side:0),-.3*HZ),bob=Math.sin(time*2+v)*.6;
+      c.fillStyle='rgba(255,255,255,.5)';c.beginPath();c.ellipse(q[0],q[1]+1+bob,9,3,0,0,6.283);c.fill();
+      c.fillStyle='#f4f6f6';c.beginPath();c.moveTo(q[0]-8,q[1]-1+bob);c.lineTo(q[0]+7,q[1]-1+bob);c.lineTo(q[0]+9,q[1]-3+bob);c.lineTo(q[0]-8,q[1]-3+bob);c.closePath();c.fill();
+      c.fillStyle='#f08a24';c.fillRect(q[0]-8,q[1]-1.5+bob,15,1.2);
+      c.fillStyle='#2f6f8f';c.fillRect(q[0]-3,q[1]-7+bob,6,4);c.fillStyle='#bfe6f0';c.fillRect(q[0]-2.4,q[1]-6.3+bob,4.8,1.4)}
+  }else if(kind==='osub'){
+    // 套管式基礎上的海上變電站
+    const z0=-.3*HZ;
+    c.fillStyle='rgba(255,255,255,.45)';for(const[a,b]of[[-.25,-.25],[.25,-.25],[.25,.25],[-.25,.25]]){const p=P3(a,b,z0);c.beginPath();c.ellipse(p[0],p[1]+1,4,1.6,0,0,6.283);c.fill()}
+    c.strokeStyle='#e5b52a';c.lineWidth=1.6;
+    for(const[a,b]of[[-.25,-.25],[.25,-.25],[.25,.25],[-.25,.25]]){const p0=P3(a,b,z0),p1=P3(a*.85,b*.85,14);c.beginPath();c.moveTo(p0[0],p0[1]);c.lineTo(p1[0],p1[1]);c.stroke()}
+    c.lineWidth=.6;for(const[a,b,a2,b2]of[[-.25,.25,.25,.25],[.25,-.25,.25,.25]]){const p0=P3(a,b,z0),p1=P3(a2*.85,b2*.85,14),p2=P3(a*.85,b*.85,14),p3=P3(a2,b2,z0);c.beginPath();c.moveTo(p0[0],p0[1]);c.lineTo(p1[0],p1[1]);c.moveTo(p2[0],p2[1]);c.lineTo(p3[0],p3[1]);c.stroke()}
+    box(c,0,0,.62,.56,3,14,'#8d989c','#a7b1b4','#7d878a','rgba(0,0,0,.15)');
+    box(c,-.05,-.04,.46,.4,11,17,'#dfe5e6','#f3f6f6','#c3ccce','rgba(0,0,0,.12)');
+    faceQuad(c,'L',-.05,-.04,.46,.4,.1,.9,22,25,'#2f5868');faceQuad(c,'R',-.05,-.04,.46,.4,.15,.85,22,25,'#244854');
+    const hp=P3(-.05,-.04,28.2);c.fillStyle='#3c4a50';c.beginPath();c.ellipse(hp[0],hp[1],9,4.4,0,0,6.283);c.fill();c.strokeStyle='#f2c230';c.lineWidth=.8;c.beginPath();c.ellipse(hp[0],hp[1],7,3.4,0,0,6.283);c.stroke();
+    c.fillStyle='#fff';c.font='700 4px sans-serif';c.textAlign='center';c.fillText('H',hp[0],hp[1]+1.5);
   }else if(kind==='bess'){
     pad('#c4c6bf');
     for(let k=0;k<3;k++){const a=-.27+k*.27;box(c,a,-.02,.2,.68,9,0,'#eef3f3','#dfe6e6','#b8c3c5','rgba(0,0,0,.12)');faceQuad(c,'R',a,-.02,.2,.68,.06,.94,5.2,6.6,'#25a872');faceQuad(c,'L',a,-.02,.2,.68,.2,.8,2,7,'#c9d2d4')}
@@ -445,12 +482,15 @@ function drawOverlays(c){
     for(const p of S.parcels){const cx=p.px*PS+PS/2,cy=p.py*PS+PS/2,e=elev(tile(Math.floor(cx),Math.floor(cy)))+1.5,s=iso(cx,cy,e);
       labelChip(c,s[0],s[1],p.owned?`${parcelName(p)} · 已擁有`:`${parcelName(p)} · ${parcelPrice(p)}M`,p.owned?'rgba(255,197,65,.95)':'rgba(12,25,33,.86)',p.owned?'#2f2100':'#fff')}
   }
-  if(overlay==='grid'||tool==='sub'){
-    for(const s of facsOf('sub')){const e=elev(tile(s.i,s.j));groundCircle(c,s.i+.5,s.j+.5,FAC.sub.range,e);c.fillStyle='rgba(108,207,226,.13)';c.fill();c.strokeStyle='rgba(108,207,226,.9)';c.lineWidth=1.4/cam.z;c.setLineDash([6/cam.z,4/cam.z]);c.stroke();c.setLineDash([])}
+  const SUBS=[...facsOf('sub'),...facsOf('osub')];
+  if(overlay==='grid'||tool==='sub'||tool==='osub'){
+    for(const s of SUBS){const e=elev(tile(s.i,s.j));groundCircle(c,s.i+.5,s.j+.5,FAC[s.kind].range,e);c.fillStyle='rgba(108,207,226,.13)';c.fill();c.strokeStyle='rgba(108,207,226,.9)';c.lineWidth=1.4/cam.z;c.setLineDash([6/cam.z,4/cam.z]);c.stroke();c.setLineDash([])}
     for(const o of TURBS){const s=GRID.asg.get(o);const e=elev(tile(o.i,o.j)),a=iso(o.i+.5,o.j+.5,e);
       if(s){const b=iso(s.i+.5,s.j+.5,elev(tile(s.i,s.j)));c.strokeStyle='rgba(255,230,120,.85)';c.lineWidth=1.2/cam.z;c.setLineDash([3/cam.z,3/cam.z]);c.lineDashOffset=-time*12;c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke();c.setLineDash([])}
-      else{c.strokeStyle='rgba(255,102,86,.95)';c.lineWidth=2/cam.z;c.beginPath();c.ellipse(a[0],a[1],12,6,0,0,6.283);c.stroke()}}
-    if(overlay==='grid')for(const s of facsOf('sub')){const L=GRID.load.get(s)||0,p=iso(s.i+.5,s.j+.5,elev(tile(s.i,s.j))+3);labelChip(c,p[0],p[1],`${fmt(L,1)} / ${FAC.sub.cap} MW`,L>FAC.sub.cap?'rgba(255,102,86,.95)':'rgba(12,25,33,.86)','#fff')}
+      else if(!autoGrid()){c.strokeStyle='rgba(255,102,86,.95)';c.lineWidth=2/cam.z;c.beginPath();c.ellipse(a[0],a[1],12,6,0,0,6.283);c.stroke()}}
+    if(overlay==='grid')for(const s of SUBS){const L=GRID.load.get(s)||0,cap=FAC[s.kind].cap,p=iso(s.i+.5,s.j+.5,elev(tile(s.i,s.j))+3);labelChip(c,p[0],p[1],`${fmt(L,1)} / ${cap} MW`,L>cap?'rgba(255,102,86,.95)':'rgba(12,25,33,.86)','#fff')}
+    // 海纜：海上變電站接到最近的陸上變電站
+    for(const s of facsOf('osub')){const n=nearestSub(s.i,s.j);if(!n)continue;const a=iso(s.i+.5,s.j+.5,-.3),b=iso(n.s.i+.5,n.s.j+.5,elev(tile(n.s.i,n.s.j)));c.strokeStyle='rgba(255,150,60,.9)';c.lineWidth=2/cam.z;c.setLineDash([6/cam.z,4/cam.z]);c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke();c.setLineDash([])}
   }
   if(overlay==='wake'){for(const o of TURBS)if(o.state!=='build'){if(season().mix){wakeCone(c,o,NE,.6);wakeCone(c,o,SW,.6)}else wakeCone(c,o,f,1)}}
   if(validMap){for(const[k,ok]of validMap){if(!ok)continue;const t=S.tiles[k];topPath(c,t.i,t.j,elev(t),.06);c.fillStyle='rgba(120,255,170,.16)';c.fill();c.strokeStyle='rgba(160,255,200,.35)';c.lineWidth=.6;c.stroke()}}
